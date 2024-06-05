@@ -63,3 +63,6 @@ Run the Jlink build, then cd build/jlinkbase/jlinkjars and do:
 java --module-path . --module edu.umich.soar.svsviewer/edu.umich.soar.svsviewer.HelloApplication
 ```
 
+## License
+
+Released under the [MIT](https://opensource.org/license/mit) license.
