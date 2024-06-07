@@ -12,11 +12,43 @@ A Java FX 3D-based rewrite of the SVS viewer.
 
 ### Network
 
-[ ] listen on specified port
-[ ] receive SVS commands (POC: just print them out)
+Next: do a spike of updating UI with a box of some kind on any server data received
+
+Server gets input line by line
+Injected with line processor
+Real line processor parses and sends results to UI
+Test one just saves lines
+
+Perhaps a Java-style pull architecture? UI updater is pulling from command parser, (which is pulling from line provider?), which is pulling from Server?
+
+[X] listen on specified port
+[ ] update UI in some way
+	- JavaFX Service (or possibly Task, Worker)
+[X] receive SVS commands (POC: just print them out)
 [ ] connect/disconnect occur gracefully
 [ ] graceful error when port is already in use
 [ ] parse commands and send to display module
+	- [ ] ignore comments
+	- [ ] split on space(s)
+	- [ ] `save <path>`
+	- [ ] `layer <num> <0/1> <num> ...?`
+	- [ ] `draw? <scene_pat> <geom_pat> <args...>`
+		- `<scene_pat>`
+			- `-` deletes scene
+			- `+` finds or creates scene
+		- `<geom_pat>`
+			- `-` deletes geometry
+			- `+` finds or creates geometry
+		- `<args...>`
+			- `[prscvbtlw]`. see `proc_geom_cmd`.
+
+[ ] testing
+	- [ ] add an echo mode to server that returns parsed JSON or something
+	- [ ] instantiate real server and test client
+	- [ ] turn on echo mode, then send example data to server with test client and expect back proper acknowledgements and JSONs
+[ ] log received commands
+	- [ ] console
+	- [ ] a Window user can open?
 
 ### 3D Display,
 
