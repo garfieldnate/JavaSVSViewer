@@ -4,7 +4,9 @@
 <?import javafx.scene.SubScene?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="edu.umich.soar.svsviewer.SceneController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="edu.umich.soar.svsviewer.SceneController"
+			prefHeight="800"
+			prefWidth="1400">
 	<Group fx:id="root">
 		<SubScene fx:id="viewerScene" width="1400" height="800" fill="ALICEBLUE">
 			<root>

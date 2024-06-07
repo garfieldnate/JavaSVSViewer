@@ -1,5 +1,7 @@
 package edu.umich.soar.svsviewer;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
@@ -9,17 +11,18 @@ import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
+import java.util.function.Consumer;
+
 public class SceneController {
 	@FXML
 	private Group contentGroup;
 	@FXML
 	private SubScene viewerScene;
 
+	private Server server;
+
 	@FXML
 	public void initialize() {
-		// Create box
-		Box testBox = new Box(5, 5, 5);
-		testBox.setMaterial(new PhongMaterial());
 
 		// Create and position camera
 		PerspectiveCamera camera = new PerspectiveCamera(true);
@@ -32,9 +35,6 @@ public class SceneController {
 		// Add camera to scene
 		viewerScene.setCamera(camera);
 
-		// Add test box to the content group
-		contentGroup.getChildren().add(testBox);
-
 		// Handle keyboard events
 		viewerScene.setOnKeyPressed(event -> {
 			switch (event.getCode()) {
@@ -43,5 +43,23 @@ public class SceneController {
 			}
 		});
 		viewerScene.setFocusTraversable(true);
+
+		Consumer<String> inputProcessor = (String line) -> {
+			System.out.println(line);
+			// Add test box to the content group
+			// Create box
+			Box testBox = new Box(5, 5, 5);
+			testBox.setMaterial(new PhongMaterial());
+
+			// we're on the server thread, but the UI must be updated on the main thread; runLater() takes care of that
+			Platform.runLater(() -> {
+				contentGroup.getChildren().add(testBox);
+			});
+		};
+
+		server = new Server(12122, inputProcessor);
+		Thread th = new Thread(server);
+		th.setDaemon(true);
+		th.start();
 	}
 }

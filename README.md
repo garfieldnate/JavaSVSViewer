@@ -12,19 +12,21 @@ A Java FX 3D-based rewrite of the SVS viewer.
 
 ### Network
 
-Next: do a spike of updating UI with a box of some kind on any server data received
-
-Server gets input line by line
-Injected with line processor
 Real line processor parses and sends results to UI
 Test one just saves lines
 
 Perhaps a Java-style pull architecture? UI updater is pulling from command parser, (which is pulling from line provider?), which is pulling from Server?
 
 [X] listen on specified port
-[ ] update UI in some way
+[X] figure out how to update UI in some way
 	- JavaFX Service (or possibly Task, Worker)
 [X] receive SVS commands (POC: just print them out)
+[ ] NEXT: update line processor to return a message to send to the client
+[ ] THEN: use that to create unit tester
+[ ] THEN: parse a single command of some kind, then refactor
+	- [ ] inject Socket?
+	- [ ] what is controller actually supposed to do?
+	- [ ] can I really not specify default port in the FXML? Maybe has to be somewhere else? Is DI not possible? Do I not understand FXML well enough?
 [ ] connect/disconnect occur gracefully
 [ ] graceful error when port is already in use
 [ ] parse commands and send to display module
@@ -74,6 +76,11 @@ Perhaps a Java-style pull architecture? UI updater is pulling from command parse
 [ ] labels on/off
 [ ] drawing mode line/solid
 [ ] screenshot shortcut
+[ ] select which scene (S1, S2, etc.) to display
+[ ] select port to listen on, then create server (also allow command line specification)
+[ ] select object with mouse
+	- [ ] highlight it somehow
+	- [ ] show its info in a separate panel
 
 ideas:
 [ ] 1,2,3,4,5,6 shortcuts to view from different faces
