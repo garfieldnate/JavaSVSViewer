@@ -23,7 +23,8 @@ Perhaps a Java-style pull architecture? UI updater is pulling from command parse
 [X] receive SVS commands (POC: just print them out)
 [ ] NEXT: update line processor to return a message to send to the client
 [ ] THEN: use that to create unit tester
-[ ] THEN: parse a single command of some kind, then refactor
+[%] THEN: parse a single command of some kind
+[ ] THEN: refactor
 	- [ ] inject Socket?
 	- [ ] what is controller actually supposed to do?
 	- [ ] can I really not specify default port in the FXML? Maybe has to be somewhere else? Is DI not possible? Do I not understand FXML well enough?
