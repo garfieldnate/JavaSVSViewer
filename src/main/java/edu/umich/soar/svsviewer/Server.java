@@ -12,43 +12,42 @@ import java.util.function.Consumer;
 
 public class Server extends Task<Void> {
 
-	private final int portNumber;
+  private final int portNumber;
 
-	private final Consumer<String> inputProcessor;
+  private final Consumer<String> inputProcessor;
 
-	public Server(int portNumber, Consumer<String> inputProcessor) {
-		this.portNumber = portNumber;
-		this.inputProcessor = inputProcessor;
-	}
+  public Server(int portNumber, Consumer<String> inputProcessor) {
+    this.portNumber = portNumber;
+    this.inputProcessor = inputProcessor;
+  }
 
-	public static void main(String[] args) {
-		final Server server = new Server(12122, System.out::println);
-		server.run();
-	}
+  public static void main(String[] args) {
+    final Server server = new Server(12122, System.out::println);
+    server.run();
+  }
 
-	@Override
-	protected Void call() {
-		try (
-			ServerSocket serverSocket = new ServerSocket(portNumber);
-			Socket clientSocket = serverSocket.accept();
-			// TODO: use BufferedWriter instead so that exceptions aren't swallowed
-			PrintWriter out =
-				new PrintWriter(clientSocket.getOutputStream(), true);
-			BufferedReader in = new BufferedReader(
-				new InputStreamReader(clientSocket.getInputStream()));
-		) {
-			System.out.println("Connection established");
-			String inputLine;
+  @Override
+  protected Void call() {
+    try (ServerSocket serverSocket = new ServerSocket(portNumber);
+        Socket clientSocket = serverSocket.accept();
+        // TODO: use BufferedWriter instead so that exceptions aren't swallowed
+        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+        BufferedReader in =
+            new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); ) {
+      System.out.println("Connection established");
+      String inputLine;
 
-			while (!isCancelled() && (inputLine = in.readLine()) != null) {
-				inputProcessor.accept(inputLine);
-				out.println("Received: " + inputLine);
-			}
-		} catch (IOException e) {
-			System.out.println("Exception caught when trying to listen on port "
-				+ portNumber + " or listening for a connection");
-			System.out.println(e.getMessage());
-		}
-		return null;
-	}
+      while (!isCancelled() && (inputLine = in.readLine()) != null) {
+        inputProcessor.accept(inputLine);
+        out.println("Received: " + inputLine);
+      }
+    } catch (IOException e) {
+      System.out.println(
+          "Exception caught when trying to listen on port "
+              + portNumber
+              + " or listening for a connection");
+      System.out.println(e.getMessage());
+    }
+    return null;
+  }
 }

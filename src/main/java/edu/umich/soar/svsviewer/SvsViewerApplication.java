@@ -9,16 +9,17 @@ import java.io.IOException;
 
 public class SvsViewerApplication extends Application {
 
-	@Override
-	public void start(Stage primaryStage) throws IOException {
-		FXMLLoader fxmlLoader = new FXMLLoader(SvsViewerApplication.class.getResource("svs-viewer.fxml"));
-		Scene scene = new Scene(fxmlLoader.load());
-		primaryStage.setTitle("SVS Viewer");
-		primaryStage.setScene(scene);
-		primaryStage.show();
-	}
+  @Override
+  public void start(Stage primaryStage) throws IOException {
+    FXMLLoader fxmlLoader =
+        new FXMLLoader(SvsViewerApplication.class.getResource("svs-viewer.fxml"));
+    Scene scene = new Scene(fxmlLoader.load());
+    primaryStage.setTitle("SVS Viewer");
+    primaryStage.setScene(scene);
+    primaryStage.show();
+  }
 
-	public static void main(String[] args) {
-		launch();
-	}
+  public static void main(String[] args) {
+    launch();
+  }
 }

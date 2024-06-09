@@ -15,43 +15,48 @@ A Java FX 3D-based rewrite of the SVS viewer.
 Real line processor parses and sends results to UI
 Test one just saves lines
 
-Perhaps a Java-style pull architecture? UI updater is pulling from command parser, (which is pulling from line provider?), which is pulling from Server?
+Perhaps a Java-style pull architecture? UI updater is pulling from command parser, (which is pulling from line
+provider?), which is pulling from Server?
 
 [X] listen on specified port
 [X] figure out how to update UI in some way
-	- JavaFX Service (or possibly Task, Worker)
-[X] receive SVS commands (POC: just print them out)
-[ ] NEXT: update line processor to return a message to send to the client
-[ ] THEN: use that to create unit tester
-[%] THEN: parse a single command of some kind
-[ ] THEN: refactor
-	- [ ] inject Socket?
-	- [ ] what is controller actually supposed to do?
-	- [ ] can I really not specify default port in the FXML? Maybe has to be somewhere else? Is DI not possible? Do I not understand FXML well enough?
-[ ] connect/disconnect occur gracefully
-[ ] graceful error when port is already in use
-[ ] parse commands and send to display module
-	- [ ] ignore comments
-	- [ ] split on space(s)
-	- [ ] `save <path>`
-	- [ ] `layer <num> <0/1> <num> ...?`
-	- [ ] `draw? <scene_pat> <geom_pat> <args...>`
-		- `<scene_pat>`
-			- `-` deletes scene
-			- `+` finds or creates scene
-		- `<geom_pat>`
-			- `-` deletes geometry
-			- `+` finds or creates geometry
-		- `<args...>`
-			- `[prscvbtlw]`. see `proc_geom_cmd`.
+
+- JavaFX Service (or possibly Task, Worker)
+  [X] receive SVS commands (POC: just print them out)
+  [ ] NEXT: update line processor to return a message to send to the client
+  [ ] THEN: use that to create unit tester
+  [%] THEN: parse a single command of some kind
+  [ ] THEN: refactor
+- [ ] inject Socket?
+- [ ] what is controller actually supposed to do?
+- [ ] can I really not specify default port in the FXML? Maybe has to be somewhere else? Is DI not possible? Do I not
+  understand FXML well enough?
+  [ ] connect/disconnect occur gracefully
+  [ ] graceful error when port is already in use
+  [ ] parse commands and send to display module
+- [ ] ignore comments
+- [ ] split on space(s)
+- [ ] `save <path>`
+- [ ] `layer <num> <0/1> <num> ...?`
+- [ ] `draw? <scene_pat> <geom_pat> <args...>`
+- `<scene_pat>`
+- `-` deletes scene
+- `+` finds or creates scene
+- `<geom_pat>`
+- `-` deletes geometry
+- `+` finds or creates geometry
+- `<args...>`
+- `[prscvbtlw]`. see `proc_geom_cmd`.
 
 [ ] testing
-	- [ ] add an echo mode to server that returns parsed JSON or something
-	- [ ] instantiate real server and test client
-	- [ ] turn on echo mode, then send example data to server with test client and expect back proper acknowledgements and JSONs
-[ ] log received commands
-	- [ ] console
-	- [ ] a Window user can open?
+
+- [ ] add an echo mode to server that returns parsed JSON or something
+- [ ] instantiate real server and test client
+- [ ] turn on echo mode, then send example data to server with test client and expect back proper acknowledgements and
+  JSONs
+  [ ] log received commands
+- [ ] console
+- [ ] a Window user can open?
 
 ### 3D Display,
 
@@ -61,6 +66,7 @@ Perhaps a Java-style pull architecture? UI updater is pulling from command parse
 [ ] grid lines
 
 ### List Display
+
 [ ] show all objects
 [ ] search objects by name
 [ ] change color of selected objects (search for belief-* and make them all red)
@@ -80,27 +86,35 @@ Perhaps a Java-style pull architecture? UI updater is pulling from command parse
 [ ] select which scene (S1, S2, etc.) to display
 [ ] select port to listen on, then create server (also allow command line specification)
 [ ] select object with mouse
-	- [ ] highlight it somehow
-	- [ ] show its info in a separate panel
+
+- [ ] highlight it somehow
+- [ ] show its info in a separate panel
 
 ideas:
 [ ] 1,2,3,4,5,6 shortcuts to view from different faces
 [ ] maybe 1,2,3,4,5,6,7,8 to view from different corners
 [ ] arrow keys move camera to sides
 [ ] mouse rotation
-	- https://www.youtube.com/watch?v=yinIKzg7duc
-[ ] shift mouse translates camera?
-[ ] scroll zooms in and out?
-	- https://www.youtube.com/watch?v=SiPfsZA_GeI
-[ ] visual camera controls?
-	- slider for zoom https://www.youtube.com/watch?v=yWsNO9qiYgg
-	- cube thing for rotation?
-	- minimap for translation?
+
+- https://www.youtube.com/watch?v=yinIKzg7duc
+  [ ] shift mouse translates camera?
+  [ ] scroll zooms in and out?
+- https://www.youtube.com/watch?v=SiPfsZA_GeI
+  [ ] visual camera controls?
+- slider for zoom https://www.youtube.com/watch?v=yWsNO9qiYgg
+- cube thing for rotation?
+- minimap for translation?
 
 ### Settings
 
 [ ] save/load settings on user's machine somewhere
 [ ] adjust sensitivity of controls (zoom)
+
+## Format
+
+We use [google-java-format](https://github.com/google/google-java-format) to format the source files.
+
+For IntelliJ, install and configure the plugin, and enable "Reformat code" under the "Actions on Save" setting.
 
 ## Editing
 
