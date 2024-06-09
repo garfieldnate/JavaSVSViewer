@@ -2,7 +2,6 @@ package edu.umich.soar.svsviewer.command;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,7 +38,7 @@ public class Parser {
 	public record DeleteSceneCommand(NameMatcher sceneMatcher) implements Command {
 	}
 
-//	"Create" commands are no-ops if the scene/geometries already exist
+	//	"Create" commands are no-ops if the scene/geometries already exist
 	public record CreateSceneCommand(String sceneName) implements Command {
 	}
 
@@ -49,9 +48,12 @@ public class Parser {
 	public record CreateGeometryCommand(NameMatcher sceneMatcher, String geometryName) implements Command {
 	}
 
-	public record UpdateGeometryCommand(NameMatcher sceneMatcher, NameMatcher geometryMatcher, double[] position,
-										double[] rotation, double[] scale, double[] color, double[] vertices,
-										Double radius, String text, Integer layer,
+	public record Vertex(double x, double y, double z) {
+	}
+
+	public record UpdateGeometryCommand(NameMatcher sceneMatcher, NameMatcher geometryMatcher, List<Double> position,
+										List<Double> rotation, List<Double> scale, List<Double> color,
+										List<Vertex> vertices, Double radius, String text, Integer layer,
 										Double lineWidth) implements Command {
 	}
 
@@ -68,6 +70,21 @@ public class Parser {
 			String currentToken = getCurrentToken();
 			currentTokenIndex++;
 			return currentToken;
+		}
+
+		Double advanceIfDouble() {
+			String currentToken = getCurrentToken();
+			if (currentToken == null) {
+				return null;
+			}
+			double d;
+			try {
+				d = Double.parseDouble(currentToken);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+			currentTokenIndex++;
+			return d;
 		}
 
 		boolean noRemainingTokens() {
@@ -212,11 +229,11 @@ public class Parser {
 
 	@Nonnull
 	private static Command parseGeometryCommand(Cursor cursor, NameMatcher sceneMatcher, NameMatcher geometryMatcher) throws ParsingException {
-		double[] position = null;
-		double[] rotation = null;
-		double[] scale = null;
-		double[] color = null;
-		double[] vertices = null;
+		List<Double> position = null;
+		List<Double> rotation = null;
+		List<Double> scale = null;
+		List<Double> color = null;
+		List<Vertex> vertices = null;
 		Double radius = null;
 		String text = null;
 		Integer layer = null;
@@ -231,9 +248,13 @@ public class Parser {
 					if (vertices != null) {
 						throw new ParsingException("Found more than one set of vertices", cursor.commandTokens);
 					}
-					vertices = parseDoubles(cursor, -1, "vertices (v)");
-					if (vertices.length % 3 != 0) {
-						throw new ParsingException("Found " + vertices.length + " vertices (must be multiple of 3)", cursor.commandTokens);
+					List<Double> flatVertices = parseDoubles(cursor, "vertices (v)");
+					if (flatVertices.size() % 3 != 0) {
+						throw new ParsingException("Found " + flatVertices.size() + " vertices (must be multiple of 3)", cursor.commandTokens);
+					}
+					vertices = new ArrayList<>();
+					for (int i = 0; i < flatVertices.size(); i += 3) {
+						vertices.add(new Vertex(flatVertices.get(i), flatVertices.get(i + 1), flatVertices.get(i + 2)));
 					}
 				}
 				case "b" -> radius = parseDouble(cursor, "ball radius (b)");
@@ -258,8 +279,29 @@ public class Parser {
 		return new UpdateGeometryCommand(sceneMatcher, geometryMatcher, position, rotation, scale, color, vertices, radius, text, layer, lineWidth);
 	}
 
-	static double[] parseDoubles(Cursor cursor, int n, String sectionName) throws ParsingException {
-		List<Double> valuesList = new LinkedList<>();
+	/**
+	 * Parse list of doubles of at least length 1
+	 */
+	static List<Double> parseDoubles(Cursor cursor, String sectionName) throws ParsingException {
+		List<Double> valuesList = new ArrayList<>();
+
+		while (!cursor.noRemainingTokens()) {
+			Double arg = cursor.advanceIfDouble();
+			if (arg == null) {
+				break;
+			}
+			valuesList.add(arg);
+		}
+
+		if (valuesList.isEmpty()) {
+			throw new ParsingException("No number arguments provided to " + sectionName, cursor.commandTokens);
+		}
+
+		return valuesList;
+	}
+
+	static List<Double> parseDoubles(Cursor cursor, int n, String sectionName) throws ParsingException {
+		List<Double> valuesList = new ArrayList<>();
 		for (int i = 0; i != n && !cursor.noRemainingTokens(); i++) {
 			double arg = parseDouble(cursor, sectionName);
 			valuesList.add(arg);
@@ -267,9 +309,13 @@ public class Parser {
 		if (n > 0 && valuesList.size() != n) {
 			throw new ParsingException("Expected " + n + " args to " + sectionName + " but found only " + valuesList.size(), cursor.commandTokens);
 		}
-		double[] valuesArray = new double[valuesList.size()];
+		return valuesList;
+	}
+
+	static double[] toPrimitiveArray(List<Double> original) {
+		double[] valuesArray = new double[original.size()];
 		for (int i = 0; i < valuesArray.length; i++) {
-			valuesArray[i] = valuesList.get(i);
+			valuesArray[i] = original.get(i);
 		}
 		return valuesArray;
 	}
