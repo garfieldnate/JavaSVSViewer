@@ -1,5 +1,8 @@
 package edu.umich.soar.svsviewer;
 
+import edu.umich.soar.svsviewer.command.Command;
+import edu.umich.soar.svsviewer.parsing.Parser;
+import edu.umich.soar.svsviewer.parsing.Tokenizer;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -11,6 +14,7 @@ import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class SceneController {
@@ -47,17 +51,25 @@ public class SceneController {
     Consumer<String> inputProcessor =
         (String line) -> {
           System.out.println(line);
-          // Add test box to the content group
-          // Create box
-          Box testBox = new Box(5, 5, 5);
-          testBox.setMaterial(new PhongMaterial());
-
-          // we're on the server thread, but the UI must be updated on the main thread; runLater()
-          // takes care of that
-          Platform.runLater(
-              () -> {
-                contentGroup.getChildren().add(testBox);
-              });
+          List<String> tokens = Tokenizer.tokenizeCommand(line);
+          if (tokens.isEmpty()) {
+            return;
+          }
+          List<Command> parsed;
+          try {
+            parsed = Parser.parse(tokens);
+          } catch (Parser.ParsingException e) {
+            // TODO: anything better we can do here?
+            System.err.println("Ignoring unparseable line: " + line);
+            System.err.println(e.getMessage());
+            return;
+          }
+          for (Command command : parsed) {
+            // we're on the server thread, but the UI must be updated on the main thread; runLater()
+            // takes care of that
+            Platform.runLater(() -> command.interpret(contentGroup));
+            command.interpret(contentGroup);
+          }
         };
 
     server = new Server(12122, inputProcessor);

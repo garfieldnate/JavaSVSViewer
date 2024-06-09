@@ -1,4 +1,4 @@
-package edu.umich.soar.svsviewer.command;
+package edu.umich.soar.svsviewer.parsing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class Tokenizer {
    *
    * @return list of fields in given command
    */
-  public static List<String> splitCommand(String command) {
+  public static List<String> tokenizeCommand(String command) {
     command = command.strip();
     List<String> fields = new ArrayList<>();
 

@@ -24,11 +24,11 @@ provider?), which is pulling from Server?
 - [X] JavaFX Service (or possibly Task, Worker)
   [X] receive SVS commands (POC: just print them out)
   [ ] NEXT: interpret parsed commands
+	- [ ] update geometry (assuming one scene)
 	- [ ] new scene
 	- [ ] new geometry
 	- [ ] delete scenes
 	- [ ] delete geometries
-	- [ ] update geometry
 - [ ] inject Socket?
 - [ ] what is controller actually supposed to do?
 - [ ] can I really not specify default port in the FXML? Maybe has to be somewhere else? Is DI not possible? Do I not

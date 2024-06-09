@@ -1,10 +1,11 @@
-package edu.umich.soar.svsviewer.command;
+package edu.umich.soar.svsviewer.parsing;
 
-import edu.umich.soar.svsviewer.command.Parser.ParsingException;
-import edu.umich.soar.svsviewer.command.Parser.Vertex;
+import edu.umich.soar.svsviewer.command.*;
+import edu.umich.soar.svsviewer.parsing.Parser.ParsingException;
+import edu.umich.soar.svsviewer.parsing.command.*;
+import edu.umich.soar.svsviewer.command.UpdateGeometryCommand.Vertex;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -45,8 +46,8 @@ class ParserTest {
 
   @Test
   public void testParseSaveValid() throws ParsingException {
-    List<Parser.Command> actual = Parser.parse(List.of("save", "filename"));
-    List<Parser.Command> expected = List.of(new Parser.SaveCommand("filename"));
+    List<Command> actual = Parser.parse(List.of("save", "filename"));
+    List<Command> expected = List.of(new SaveCommand("filename"));
     assertEquals(expected, actual);
   }
 
@@ -96,19 +97,19 @@ class ParserTest {
 
   @Test
   public void testParseLayerValid() throws ParsingException {
-    List<Parser.Command> actual =
+    List<Command> actual =
         Parser.parse(List.of("layer", "42", "l", "4", "d", "3", "n", "0", "w", "4", "f", "20"));
-    List<Parser.Command> expected =
+    List<Command> expected =
         List.of(
-            new Parser.LayerCommand(
+            new LayerCommand(
                 42,
-                new EnumMap<>(Parser.LayerOption.class) {
+                new EnumMap<>(LayerCommand.LayerOption.class) {
                   {
-                    put(Parser.LayerOption.LIGHTING, 4);
-                    put(Parser.LayerOption.CLEAR_DEPTH, 3);
-                    put(Parser.LayerOption.DRAW_NAMES, 0);
-                    put(Parser.LayerOption.WIREFRAME, 4);
-                    put(Parser.LayerOption.FLAT, 20);
+                    put(LayerCommand.LayerOption.LIGHTING, 4);
+                    put(LayerCommand.LayerOption.CLEAR_DEPTH, 3);
+                    put(LayerCommand.LayerOption.DRAW_NAMES, 0);
+                    put(LayerCommand.LayerOption.WIREFRAME, 4);
+                    put(LayerCommand.LayerOption.FLAT, 20);
                   }
                 }));
 
@@ -117,42 +118,40 @@ class ParserTest {
 
   @Test
   public void testDrawRemoveScene() throws ParsingException {
-    List<Parser.Command> actual = Parser.parse(List.of("draw", "-S1"));
-    List<Parser.Command> expected =
-        List.of(
-            new Parser.DeleteSceneCommand(
-                new Parser.NameMatcher("S1", Parser.NameMatchType.WILDCARD)));
+    List<Command> actual = Parser.parse(List.of("draw", "-S1"));
+    List<Command> expected =
+        List.of(new DeleteSceneCommand(new NameMatcher("S1", NameMatcher.NameMatchType.WILDCARD)));
 
     assertEquals(expected, actual);
   }
 
   @Test
   public void testDrawCreateScene() throws ParsingException {
-    List<Parser.Command> actual = Parser.parse(List.of("draw", "+S1"));
-    List<Parser.Command> expected = List.of(new Parser.CreateSceneCommand("S1"));
+    List<Command> actual = Parser.parse(List.of("draw", "+S1"));
+    List<Command> expected = List.of(new CreateSceneCommand("S1"));
 
     assertEquals(expected, actual);
   }
 
   @Test
   public void testDrawDeleteGeometry() throws ParsingException {
-    List<Parser.Command> actual = Parser.parse(List.of("draw", "S1", "-foo"));
-    List<Parser.Command> expected =
+    List<Command> actual = Parser.parse(List.of("draw", "S1", "-foo"));
+    List<Command> expected =
         List.of(
-            new Parser.DeleteGeometryCommand(
-                new Parser.NameMatcher("S1", Parser.NameMatchType.WILDCARD),
-                new Parser.NameMatcher("foo", Parser.NameMatchType.WILDCARD)));
+            new DeleteGeometryCommand(
+                new NameMatcher("S1", NameMatcher.NameMatchType.WILDCARD),
+                new NameMatcher("foo", NameMatcher.NameMatchType.WILDCARD)));
 
     assertEquals(expected, actual);
   }
 
   @Test
   public void testCreateGeometry() throws ParsingException {
-    List<Parser.Command> actual = Parser.parse(List.of("draw", "+S1", "+foo"));
-    List<Parser.Command> expected =
+    List<Command> actual = Parser.parse(List.of("draw", "+S1", "+foo"));
+    List<Command> expected =
         List.of(
-            new Parser.CreateGeometryCommand(
-                new Parser.NameMatcher("S1", Parser.NameMatchType.EXACT), "foo"));
+            new CreateGeometryCommand(
+                new NameMatcher("S1", NameMatcher.NameMatchType.EXACT), "foo"));
 
     assertEquals(expected, actual);
   }
@@ -161,12 +160,12 @@ class ParserTest {
   public void testUpdateGeometry() throws ParsingException {
     String s =
         "S1 foo v 0.5 0.5 0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 -0.5 -0.5 0.5 0.5 -0.5 0.5 -0.5 -0.5 -0.5 0.5 -0.5 -0.5 -0.5   p -0.465155 0.475745 1.15673 r 0 0 0 1  s 0.106014 0.106025 0.11345 c 1 2 3 b 3.4 t foo l 2 w 4.2";
-    List<Parser.Command> actual = Parser.parse(List.of(s.split("\\s+")));
-    List<Parser.Command> expected =
+    List<Command> actual = Parser.parse(List.of(s.split("\\s+")));
+    List<Command> expected =
         List.of(
-            new Parser.UpdateGeometryCommand(
-                new Parser.NameMatcher("S1", Parser.NameMatchType.WILDCARD),
-                new Parser.NameMatcher("foo", Parser.NameMatchType.WILDCARD),
+            new UpdateGeometryCommand(
+                new NameMatcher("S1", NameMatcher.NameMatchType.WILDCARD),
+                new NameMatcher("foo", NameMatcher.NameMatchType.WILDCARD),
                 List.of(-0.465155, 0.475745, 1.15673),
                 List.of(0.0, 0.0, 0.0, 1.0),
                 List.of(0.106014, 0.106025, 0.11345),

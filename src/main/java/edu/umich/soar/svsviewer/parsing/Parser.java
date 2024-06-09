@@ -1,10 +1,11 @@
-package edu.umich.soar.svsviewer.command;
+package edu.umich.soar.svsviewer.parsing;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
 
+import edu.umich.soar.svsviewer.command.*;
 import jakarta.annotation.Nonnull;
 
 public class Parser {
@@ -13,56 +14,6 @@ public class Parser {
       super(message + "\nCommand was: " + commandTokens);
     }
   }
-
-  public interface Command {}
-
-  public record SaveCommand(String path) implements Command {}
-
-  public enum LayerOption {
-    LIGHTING,
-    FLAT,
-    CLEAR_DEPTH,
-    DRAW_NAMES,
-    WIREFRAME
-  }
-
-  public record LayerCommand(int layerNumber, EnumMap<LayerOption, Integer> options)
-      implements Command {}
-
-  public enum NameMatchType {
-    // wildcard name patterns may contain "*" to match arbitrary text
-    EXACT,
-    WILDCARD
-  }
-
-  public record NameMatcher(String namePattern, NameMatchType matchType) {}
-
-  public record DeleteSceneCommand(NameMatcher sceneMatcher) implements Command {}
-
-  //	"Create" commands are no-ops if the scene/geometries already exist
-  public record CreateSceneCommand(String sceneName) implements Command {}
-
-  public record DeleteGeometryCommand(NameMatcher sceneMatcher, NameMatcher geometryMatcher)
-      implements Command {}
-
-  public record CreateGeometryCommand(NameMatcher sceneMatcher, String geometryName)
-      implements Command {}
-
-  public record Vertex(double x, double y, double z) {}
-
-  public record UpdateGeometryCommand(
-      NameMatcher sceneMatcher,
-      NameMatcher geometryMatcher,
-      List<Double> position,
-      List<Double> rotation,
-      List<Double> scale,
-      List<Double> color,
-      List<Vertex> vertices,
-      Double radius,
-      String text,
-      Integer layer,
-      Double lineWidth)
-      implements Command {}
 
   private static class Cursor {
     private final List<String> commandTokens;
@@ -155,7 +106,8 @@ public class Parser {
     }
 
     // parse following pairs of option/value
-    EnumMap<LayerOption, Integer> options = new EnumMap<>(LayerOption.class);
+    EnumMap<LayerCommand.LayerOption, Integer> options =
+        new EnumMap<>(LayerCommand.LayerOption.class);
     for (int tokenIndex = 2; tokenIndex <= commandTokens.size() - 2; tokenIndex += 2) {
       final int value;
       final String stringValue = commandTokens.get(tokenIndex + 1);
@@ -167,11 +119,11 @@ public class Parser {
       }
       String option = commandTokens.get(tokenIndex);
       switch (option.charAt(0)) {
-        case 'l' -> options.put(LayerOption.LIGHTING, value);
-        case 'f' -> options.put(LayerOption.FLAT, value);
-        case 'd' -> options.put(LayerOption.CLEAR_DEPTH, value);
-        case 'n' -> options.put(LayerOption.DRAW_NAMES, value);
-        case 'w' -> options.put(LayerOption.WIREFRAME, value);
+        case 'l' -> options.put(LayerCommand.LayerOption.LIGHTING, value);
+        case 'f' -> options.put(LayerCommand.LayerOption.FLAT, value);
+        case 'd' -> options.put(LayerCommand.LayerOption.CLEAR_DEPTH, value);
+        case 'n' -> options.put(LayerCommand.LayerOption.DRAW_NAMES, value);
+        case 'w' -> options.put(LayerCommand.LayerOption.WIREFRAME, value);
         default ->
             throw new ParsingException("Unknown layer option '" + option + "'", commandTokens);
       }
@@ -197,7 +149,7 @@ public class Parser {
       cursor.assertEmpty("Extra fields found in scene removal command");
       return List.of(
           new DeleteSceneCommand(
-              new NameMatcher(scenePattern.substring(1), NameMatchType.WILDCARD)));
+              new NameMatcher(scenePattern.substring(1), NameMatcher.NameMatchType.WILDCARD)));
     }
     List<Command> commands = new ArrayList<>();
     if (scenePattern.startsWith("+")) {
@@ -212,9 +164,9 @@ public class Parser {
 
     final NameMatcher sceneMatcher;
     if (exactSceneMatch) {
-      sceneMatcher = new NameMatcher(scenePattern, NameMatchType.EXACT);
+      sceneMatcher = new NameMatcher(scenePattern, NameMatcher.NameMatchType.EXACT);
     } else {
-      sceneMatcher = new NameMatcher(scenePattern, NameMatchType.WILDCARD);
+      sceneMatcher = new NameMatcher(scenePattern, NameMatcher.NameMatchType.WILDCARD);
     }
 
     boolean exactGeometryMatch = false;
@@ -222,7 +174,8 @@ public class Parser {
     if (geometryPattern.startsWith("-")) {
       commands.add(
           new DeleteGeometryCommand(
-              sceneMatcher, new NameMatcher(geometryPattern.substring(1), NameMatchType.WILDCARD)));
+              sceneMatcher,
+              new NameMatcher(geometryPattern.substring(1), NameMatcher.NameMatchType.WILDCARD)));
       cursor.assertEmpty("Extra fields found in geometry removal command");
       return commands;
     } else if (geometryPattern.startsWith("+")) {
@@ -233,9 +186,9 @@ public class Parser {
 
     final NameMatcher geometryMatcher;
     if (exactGeometryMatch) {
-      geometryMatcher = new NameMatcher(geometryPattern, NameMatchType.EXACT);
+      geometryMatcher = new NameMatcher(geometryPattern, NameMatcher.NameMatchType.EXACT);
     } else {
-      geometryMatcher = new NameMatcher(geometryPattern, NameMatchType.WILDCARD);
+      geometryMatcher = new NameMatcher(geometryPattern, NameMatcher.NameMatchType.WILDCARD);
     }
 
     if (!cursor.noRemainingTokens()) {
@@ -252,7 +205,7 @@ public class Parser {
     List<Double> rotation = null;
     List<Double> scale = null;
     List<Double> color = null;
-    List<Vertex> vertices = null;
+    List<UpdateGeometryCommand.Vertex> vertices = null;
     Double radius = null;
     String text = null;
     Integer layer = null;
@@ -276,7 +229,8 @@ public class Parser {
           vertices = new ArrayList<>();
           for (int i = 0; i < flatVertices.size(); i += 3) {
             vertices.add(
-                new Vertex(flatVertices.get(i), flatVertices.get(i + 1), flatVertices.get(i + 2)));
+                new UpdateGeometryCommand.Vertex(
+                    flatVertices.get(i), flatVertices.get(i + 1), flatVertices.get(i + 2)));
           }
         }
         case "b" -> radius = parseDouble(cursor, "ball radius (b)");
