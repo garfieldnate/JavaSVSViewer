@@ -31,8 +31,8 @@ class ParserTest {
 
 	@Test
 	public void testParseSaveValid() throws ParsingException {
-		Parser.Command actual = Parser.parse(List.of("save", "filename"));
-		Parser.Command expected = new Parser.SaveCommand("filename");
+		List<Parser.Command> actual = Parser.parse(List.of("save", "filename"));
+		List<Parser.Command> expected = List.of(new Parser.SaveCommand("filename"));
 		assertEquals(expected, actual);
 	}
 
@@ -68,14 +68,57 @@ class ParserTest {
 
 	@Test
 	public void testParseLayerValid() throws ParsingException {
-		Parser.Command actual = Parser.parse(List.of("layer", "42", "l", "4", "d", "3", "n", "0", "w", "4", "f", "20"));
-		Parser.Command expected = new Parser.LayerCommand(42, new EnumMap<>(Parser.LayerOption.class) {{
+		List<Parser.Command> actual = Parser.parse(List.of("layer", "42", "l", "4", "d", "3", "n", "0", "w", "4", "f", "20"));
+		List<Parser.Command> expected = List.of(new Parser.LayerCommand(42, new EnumMap<>(Parser.LayerOption.class) {{
 			put(Parser.LayerOption.LIGHTING, 4);
 			put(Parser.LayerOption.CLEAR_DEPTH, 3);
 			put(Parser.LayerOption.DRAW_NAMES, 0);
 			put(Parser.LayerOption.WIREFRAME, 4);
 			put(Parser.LayerOption.FLAT, 20);
-		}});
+		}}));
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testDrawRemoveScene() throws ParsingException {
+		List<Parser.Command> actual = Parser.parse(List.of("draw", "-S1"));
+		List<Parser.Command> expected = List.of(new Parser.DeleteSceneCommand(new Parser.NameMatcher("S1", Parser.NameMatchType.WILDCARD)));
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testDrawCreateScene() throws ParsingException {
+		List<Parser.Command> actual = Parser.parse(List.of("draw", "+S1"));
+		List<Parser.Command> expected = List.of(new Parser.CreateSceneCommand("S1"));
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testDrawDeleteGeometry() throws ParsingException {
+		List<Parser.Command> actual = Parser.parse(List.of("draw", "S1", "-foo"));
+		List<Parser.Command> expected = List.of(new Parser.DeleteGeometryCommand(new Parser.NameMatcher("S1", Parser.NameMatchType.WILDCARD), new Parser.NameMatcher("foo", Parser.NameMatchType.WILDCARD)));
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testCreateGeometry() throws ParsingException {
+		List<Parser.Command> actual = Parser.parse(List.of("draw", "+S1", "+foo"));
+		List<Parser.Command> expected = List.of(new Parser.CreateGeometryCommand(new Parser.NameMatcher("S1", Parser.NameMatchType.EXACT), "foo"));
+
+		assertEquals(expected, actual);
+	}
+
+//	Next: fix this test. Original strtod would gracefully stop after vertices were finished, but we expect them until the end of the string!
+	// could add some lookahead to the cursor, where it advances iff the token is a double
+	@Test
+	public void testUpdateGeometry() throws ParsingException {
+		String s = "+S1 foo v 0.5 0.5 0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 -0.5 -0.5 0.5 0.5 -0.5 0.5 -0.5 -0.5 -0.5 0.5 -0.5 -0.5 -0.5   p -0.465155 0.475745 1.15673 r 0 0 0 1  s 0.106014 0.106025 0.11345";
+		List<Parser.Command> actual = Parser.parse(List.of(s.split("\\s+")));
+		List<Parser.Command> expected = List.of(new Parser.CreateGeometryCommand(new Parser.NameMatcher("S1", Parser.NameMatchType.EXACT), "foo"));
 
 		assertEquals(expected, actual);
 	}
