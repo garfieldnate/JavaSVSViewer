@@ -21,24 +21,28 @@ provider?), which is pulling from Server?
 [X] listen on specified port
 [X] figure out how to update UI in some way
 
-- JavaFX Service (or possibly Task, Worker)
+- [X] JavaFX Service (or possibly Task, Worker)
   [X] receive SVS commands (POC: just print them out)
-  [ ] NEXT: update line processor to return a message to send to the client
-  [ ] THEN: use that to create unit tester
-  [%] THEN: parse a single command of some kind
-  [ ] THEN: refactor
+  [ ] NEXT: interpret parsed commands
+	- [ ] new scene
+	- [ ] new geometry
+	- [ ] delete scenes
+	- [ ] delete geometries
+	- [ ] update geometry
 - [ ] inject Socket?
 - [ ] what is controller actually supposed to do?
 - [ ] can I really not specify default port in the FXML? Maybe has to be somewhere else? Is DI not possible? Do I not
   understand FXML well enough?
   [ ] connect/disconnect occur gracefully
   [ ] graceful error when port is already in use
-  [ ] parse commands and send to display module
-- [ ] ignore comments
-- [ ] split on space(s)
-- [ ] `save <path>`
-- [ ] `layer <num> <0/1> <num> ...?`
-- [ ] `draw? <scene_pat> <geom_pat> <args...>`
+
+[X] command parser
+
+- [X] ignore comments
+- [X] split on space(s)
+- [X] `save <path>`
+- [X] `layer <num> <0/1> <num> ...?`
+- [X] `draw? <scene_pat> <geom_pat> <args...>`
 - `<scene_pat>`
 - `-` deletes scene
 - `+` finds or creates scene
