@@ -1,6 +1,7 @@
 package edu.umich.soar.svsviewer;
 
 import edu.umich.soar.svsviewer.command.Command;
+import edu.umich.soar.svsviewer.geometry.GeometryManager;
 import edu.umich.soar.svsviewer.parsing.Parser;
 import edu.umich.soar.svsviewer.parsing.Tokenizer;
 import javafx.application.Platform;
@@ -48,6 +49,7 @@ public class SceneController {
         });
     viewerScene.setFocusTraversable(true);
 
+    GeometryManager geometryManager = new GeometryManager(contentGroup);
     Consumer<String> inputProcessor =
         (String line) -> {
           System.out.println(line);
@@ -67,8 +69,7 @@ public class SceneController {
           for (Command command : parsed) {
             // we're on the server thread, but the UI must be updated on the main thread; runLater()
             // takes care of that
-            Platform.runLater(() -> command.interpret(contentGroup));
-            command.interpret(contentGroup);
+            Platform.runLater(() -> command.interpret(geometryManager));
           }
         };
 

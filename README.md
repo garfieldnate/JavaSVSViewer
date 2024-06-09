@@ -2,6 +2,11 @@
 
 A Java FX 3D-based rewrite of the SVS viewer.
 
+## Terminology
+
+Scene in SVS vs JavaFX
+Geometry in SVS (might not be visible, has color, text, etc.)
+
 ## Progress
 
 ### Design
@@ -23,10 +28,10 @@ provider?), which is pulling from Server?
 
 - [X] JavaFX Service (or possibly Task, Worker)
   [X] receive SVS commands (POC: just print them out)
-  [ ] NEXT: interpret parsed commands
-	- [ ] update geometry (assuming one scene)
+  [ ] interpret parsed commands
+	- [%] update geometry (assuming one scene)
 	- [ ] new scene
-	- [ ] new geometry
+	- [NEXT] new geometry
 	- [ ] delete scenes
 	- [ ] delete geometries
 - [ ] inject Socket?
@@ -89,10 +94,12 @@ provider?), which is pulling from Server?
 [ ] screenshot shortcut
 [ ] select which scene (S1, S2, etc.) to display
 [ ] select port to listen on, then create server (also allow command line specification)
-[ ] select object with mouse
+[ ] select object with mouse or in objects list panel
 
 - [ ] highlight it somehow
+- [ ] show orientation with arrows
 - [ ] show its info in a separate panel
+- [ ] might be able to inspect geometries that have no visualization (only position, rotation, no vertices)
 
 ideas:
 [ ] 1,2,3,4,5,6 shortcuts to view from different faces

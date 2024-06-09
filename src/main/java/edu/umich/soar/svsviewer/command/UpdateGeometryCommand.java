@@ -1,6 +1,7 @@
 package edu.umich.soar.svsviewer.command;
 
-import javafx.scene.Group;
+import edu.umich.soar.svsviewer.geometry.Geometry;
+import edu.umich.soar.svsviewer.geometry.GeometryManager;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 
@@ -21,10 +22,12 @@ public record UpdateGeometryCommand(
     implements Command {
 
   @Override
-  public void interpret(Group root) {
-    Box testBox = new Box(5, 5, 5);
-    testBox.setMaterial(new PhongMaterial());
-    root.getChildren().add(testBox);
+  public void interpret(GeometryManager geoManager) {
+    for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
+      Box testBox = new Box(5, 5, 5);
+      testBox.setMaterial(new PhongMaterial());
+      geometry.getGroup().getChildren().add(testBox);
+    }
   }
 
   public record Vertex(double x, double y, double z) {}
