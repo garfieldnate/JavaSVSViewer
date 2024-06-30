@@ -27,6 +27,7 @@ public record UpdateGeometryCommand(
       Box testBox = new Box(5, 5, 5);
       testBox.setMaterial(new PhongMaterial());
       geometry.getGroup().getChildren().add(testBox);
+      System.out.println("TODO: interpret " + getClass().getName());
     }
   }
 

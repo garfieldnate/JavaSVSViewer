@@ -1,3 +1,10 @@
 package edu.umich.soar.svsviewer.command;
 
-public record DeleteSceneCommand(NameMatcher sceneMatcher) implements Command {}
+import edu.umich.soar.svsviewer.geometry.GeometryManager;
+
+public record DeleteSceneCommand(NameMatcher sceneMatcher) implements Command {
+  @Override
+  public void interpret(GeometryManager geoManager) {
+    System.out.println("TODO: interpret " + getClass().getName());
+  }
+}

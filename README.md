@@ -28,6 +28,8 @@ provider?), which is pulling from Server?
 
 - [X] JavaFX Service (or possibly Task, Worker)
   [X] receive SVS commands (POC: just print them out)
+  [ ] NEXT: add wildcard-trie to GeometryManager so we can retrieve scenes/geometries using wildcards. Needs a license
+  first: https://github.com/TeodorDyakov/wildcard-trie/pull/3
   [ ] interpret parsed commands
 	- [%] update geometry (assuming one scene)
 	- [ ] new scene

@@ -11,14 +11,17 @@ import java.util.List;
  */
 public class GeometryManager {
 
+  // TODO: use wilcard-trie; waiting on license:
+  // https://github.com/TeodorDyakov/wildcard-trie/pull/3
+
   //  TODO: for now we are just using the one root!
   private final Group root;
-  // TODO: for now just using one
-  private final Geometry geometry;
+  // TODO: for now just using one list
+  private final List<Geometry> geometries;
 
   public GeometryManager(Group root) {
     this.root = root;
-    this.geometry = new Geometry.Builder().build(root);
+    this.geometries = List.of(new Geometry.Builder().build(root));
   }
 
   public void createSceneIfNotExists(String sceneName) {
@@ -32,6 +35,6 @@ public class GeometryManager {
   // find geometries by scene/geometry matchers
   public List<Geometry> findGeometries(NameMatcher sceneMatcher, NameMatcher geometryMatcher) {
     //    TODO: just using the one geometry for now
-    return List.of(this.geometry);
+    return geometries;
   }
 }

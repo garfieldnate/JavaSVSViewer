@@ -1,5 +1,7 @@
 package edu.umich.soar.svsviewer.command;
 
+import edu.umich.soar.svsviewer.geometry.GeometryManager;
+
 import java.util.EnumMap;
 
 public record LayerCommand(int layerNumber, EnumMap<LayerOption, Integer> options)
@@ -11,5 +13,10 @@ public record LayerCommand(int layerNumber, EnumMap<LayerOption, Integer> option
     CLEAR_DEPTH,
     DRAW_NAMES,
     WIREFRAME
+  }
+
+  @Override
+  public void interpret(GeometryManager geoManager) {
+    System.out.println("TODO: interpret " + getClass().getName());
   }
 }
