@@ -2,7 +2,6 @@ package edu.umich.soar.svsviewer.parsing;
 
 import edu.umich.soar.svsviewer.command.*;
 import edu.umich.soar.svsviewer.parsing.Parser.ParsingException;
-import edu.umich.soar.svsviewer.parsing.command.*;
 import edu.umich.soar.svsviewer.command.UpdateGeometryCommand.Vertex;
 import org.junit.jupiter.api.Test;
 
@@ -150,6 +149,7 @@ class ParserTest {
     List<Command> actual = Parser.parse(List.of("draw", "+S1", "+foo"));
     List<Command> expected =
         List.of(
+            new CreateSceneCommand("S1"),
             new CreateGeometryCommand(
                 new NameMatcher("S1", NameMatcher.NameMatchType.EXACT), "foo"));
 
