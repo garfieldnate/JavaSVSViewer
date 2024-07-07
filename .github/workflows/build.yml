@@ -1,0 +1,45 @@
+name: Build and Test
+
+on:
+    push:
+    pull_request:
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [
+                    windows-latest,
+                    ubuntu-latest,
+                  # latest available X86_64 target
+                    macos-12,
+                  # latest is ARM
+                    macos-latest,
+                ]
+        steps:
+            -   uses: actions/checkout@v2  # Checkout the repository
+
+            -   uses: actions/setup-java@v4
+                with:
+                    distribution: 'temurin'
+                    java-version: '21'
+
+            -   name: Build with Gradle
+                run: ./gradlew build --no-daemon
+
+            -   name: Run tests
+                run: ./gradlew test --no-daemon
+
+            # create installer
+            -   name: Package
+                run: ./gradlew jpackage --no-daemon
+
+            -   name: Archive build artifacts
+                if: success()  # Only runs if the previous steps were successful
+                uses: actions/upload-artifact@v2
+                with:
+                    name: build-artifacts
+                    path: build/jpackage/*
