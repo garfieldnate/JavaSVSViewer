@@ -101,6 +101,10 @@ public class WildcardMap<T> implements Map<String, T> {
     throw new UnsupportedOperationException();
   }
 
+  public int removeWithWildcards(String keyWithWildcards) {
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   public void putAll(Map<? extends String, ? extends T> m) {
     m.forEach(this::put);

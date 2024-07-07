@@ -1,6 +1,7 @@
 package edu.umich.soar.svsviewer.geometry;
 
 import edu.umich.soar.svsviewer.command.NameMatcher;
+import edu.umich.soar.svsviewer.util.WildcardMap;
 import javafx.scene.Group;
 
 import java.util.List;
@@ -10,9 +11,9 @@ import java.util.List;
  * correspond to a single Soar state. TODO: SceneController will decide what to actually display.
  */
 public class GeometryManager {
-
-  // TODO: use wilcard-trie; waiting on license:
-  // https://github.com/TeodorDyakov/wildcard-trie/pull/3
+  //  TODO: use these
+  private final WildcardMap<Group> scenes = new WildcardMap<>();
+  //  private final WildcardTrie<Geometry> geometries = new WildcardTrie<>();
 
   //  TODO: for now we are just using the one root!
   private final Group root;
@@ -25,7 +26,15 @@ public class GeometryManager {
   }
 
   public void createSceneIfNotExists(String sceneName) {
-    // TODO (for now just using root)
+    scenes.computeIfAbsent(sceneName, (key) -> new Group());
+  }
+
+  public void deleteScene(NameMatcher sceneMatcher) {
+    switch (sceneMatcher.matchType()) {
+        //      NEXT: implement both of these in WildcardMap
+      case EXACT -> scenes.remove(sceneMatcher.namePattern());
+      case WILDCARD -> throw new UnsupportedOperationException();
+    }
   }
 
   // delete scene(s)

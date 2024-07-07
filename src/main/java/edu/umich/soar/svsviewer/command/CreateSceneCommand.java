@@ -5,6 +5,6 @@ import edu.umich.soar.svsviewer.geometry.GeometryManager;
 public record CreateSceneCommand(String sceneName) implements Command {
   @Override
   public void interpret(GeometryManager geoManager) {
-    System.out.println("TODO: interpret " + getClass().getName());
+    geoManager.createSceneIfNotExists(sceneName);
   }
 }
