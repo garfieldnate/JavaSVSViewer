@@ -31,9 +31,8 @@ public class GeometryManager {
 
   public void deleteScene(NameMatcher sceneMatcher) {
     switch (sceneMatcher.matchType()) {
-        //      NEXT: implement both of these in WildcardMap
       case EXACT -> scenes.remove(sceneMatcher.namePattern());
-      case WILDCARD -> throw new UnsupportedOperationException();
+      case WILDCARD -> scenes.removeWithWildcards(sceneMatcher.namePattern());
     }
   }
 

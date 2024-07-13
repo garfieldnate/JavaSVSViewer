@@ -17,6 +17,8 @@ public class WildcardMap<T> implements Map<String, T> {
     T value;
   }
 
+  record Entry<T>(String key, T value) {}
+
   @Override
   public T put(String key, T value) {
     Node<T> currentNode = root;
@@ -35,44 +37,50 @@ public class WildcardMap<T> implements Map<String, T> {
     if (!(key instanceof String keyString)) {
       throw new IllegalArgumentException("only String keys are allowed");
     }
-    List<T> result = new ArrayList<>();
-    search(false, root, 0, keyString, result);
+    List<Entry<T>> result = new ArrayList<>();
+    search(false, root, "", 0, keyString, result);
     if (result.isEmpty()) {
       return null;
     }
-    return result.get(0);
+    return result.get(0).value();
   }
 
   /**
-   * Return all contained values with keys that match {@codfe keyWithWildcards}.
+   * Return all contained key/value pairs where the keys match {@code keyWithWildcards}.
    *
    * @param keyWithWildcards matches keys of the desired values; {@code *} matches 0 or more
    *     characters
    */
-  public List<T> getWithWildcards(String keyWithWildcards) {
-    List<T> result = new ArrayList<>();
-    search(true, root, 0, keyWithWildcards, result);
+  public List<Entry<T>> getWithWildcards(String keyWithWildcards) {
+    List<Entry<T>> result = new ArrayList<>();
+    search(true, root, "", 0, keyWithWildcards, result);
     return result;
   }
 
-  private void search(boolean useWildcards, Node<T> parent, int index, String key, List<T> result) {
+  private void search(
+      boolean useWildcards,
+      Node<T> parent,
+      String currentPath,
+      int index,
+      String key,
+      List<Entry<T>> results) {
     if (parent == null) return;
     if (index == key.length()) {
-      result.add(parent.value);
+      results.add(new Entry<>(currentPath, parent.value));
       return;
     }
     char c = key.charAt(index);
     if (useWildcards && c == '*') {
       // consume zero characters
-      search(true, parent, index + 1, key, result);
-      for (Node<T> childNode : parent.children.values()) {
+      search(true, parent, currentPath, index + 1, key, results);
+      for (Map.Entry<Character, Node<T>> entry : parent.children.entrySet()) {
         // consume one character
-        search(true, childNode, index, key, result);
+        search(true, entry.getValue(), currentPath + entry.getKey(), index, key, results);
       }
     } else {
       // attempt to consume current character (no results if child for that character does not
       // exist)
-      search(useWildcards, parent.children.get(c), index + 1, key, result);
+      search(useWildcards, parent.children.get(c), currentPath + c, index + 1, key, results);
     }
   }
 
@@ -96,13 +104,62 @@ public class WildcardMap<T> implements Map<String, T> {
     throw new UnsupportedOperationException();
   }
 
+  // NEXT: unit tests. Also ensure that containsKey still works properly (didn't delete more nodes
+  // than we needed to).
   @Override
   public T remove(Object key) {
-    throw new UnsupportedOperationException();
+    if (!(key instanceof String keyString)) {
+      throw new IllegalArgumentException("only String keys are allowed");
+    }
+    // keep track of the parent nodes that lead to the node with the key;
+    // if they become empty after removing the node, they have to be removed
+    LinkedList<Node<T>> path = new LinkedList<>();
+    Node<T> currentNode = root;
+    path.add(root); // Add root to path
+    for (char c : keyString.toCharArray()) {
+      currentNode = currentNode.children.get(c);
+      if (currentNode == null) {
+        return null; // Key does not exist
+      }
+      path.add(currentNode);
+    }
+    T previousValue = currentNode.value;
+    if (previousValue != null) {
+      currentNode.value = null;
+      cleanUpPath(keyString, path);
+      size--;
+    }
+    return previousValue;
   }
 
+  /**
+   * Remove nodes from the path that are not needed anymore (i.e. have no value and no children).
+   */
+  private void cleanUpPath(String key, LinkedList<Node<T>> path) {
+    int index = key.length();
+    while (index >= 0 && !path.isEmpty()) {
+      Node<T> node = path.removeLast();
+      if (node.value == null && node.children.isEmpty()) {
+        if (index > 0) { // Not root
+          Node<T> parent = path.peekLast();
+          if (parent != null) {
+            parent.children.remove(key.charAt(index - 1));
+          }
+        }
+      } else {
+        break; // Stop if node has value or children
+      }
+      index--;
+    }
+  }
+
+  // NEXT: unit tests
   public int removeWithWildcards(String keyWithWildcards) {
-    throw new UnsupportedOperationException();
+    List<Entry<T>> pairsToRemove = getWithWildcards(keyWithWildcards);
+    for (Entry<T> entry : pairsToRemove) {
+      remove(entry.key());
+    }
+    return pairsToRemove.size();
   }
 
   @Override
@@ -126,7 +183,7 @@ public class WildcardMap<T> implements Map<String, T> {
   }
 
   @Override
-  public Set<Entry<String, T>> entrySet() {
+  public Set<Map.Entry<String, T>> entrySet() {
     throw new UnsupportedOperationException();
   }
 }
