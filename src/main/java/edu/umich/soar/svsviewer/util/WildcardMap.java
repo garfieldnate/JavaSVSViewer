@@ -104,8 +104,6 @@ public class WildcardMap<T> implements Map<String, T> {
     throw new UnsupportedOperationException();
   }
 
-  // NEXT: unit tests. Also ensure that containsKey still works properly (didn't delete more nodes
-  // than we needed to).
   @Override
   public T remove(Object key) {
     if (!(key instanceof String keyString)) {
@@ -153,7 +151,6 @@ public class WildcardMap<T> implements Map<String, T> {
     }
   }
 
-  // NEXT: unit tests
   public int removeWithWildcards(String keyWithWildcards) {
     List<Entry<T>> pairsToRemove = getWithWildcards(keyWithWildcards);
     for (Entry<T> entry : pairsToRemove) {
