@@ -4,7 +4,9 @@ import edu.umich.soar.svsviewer.command.NameMatcher;
 import edu.umich.soar.svsviewer.util.WildcardMap;
 import javafx.scene.Group;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Manages all of the 3D objects received over the network. Geometries are in scenes, which
@@ -34,6 +36,29 @@ public class GeometryManager {
       case EXACT -> scenes.remove(sceneMatcher.namePattern());
       case WILDCARD -> scenes.removeWithWildcards(sceneMatcher.namePattern());
     }
+  }
+
+  public void deleteGeometry(NameMatcher sceneMatcher, NameMatcher geometryMatcher) {
+    List<Group> scenesToDeleteFrom;
+    switch (sceneMatcher.matchType()) {
+      case EXACT -> {
+        Group scene = scenes.get(sceneMatcher.namePattern());
+        if (scene != null) {
+          scenesToDeleteFrom = Collections.singletonList(scene);
+        } else {
+          //          no scenes matched, so we can't delete geometries anywhere
+          return;
+        }
+      }
+      case WILDCARD -> {
+        scenesToDeleteFrom =
+            scenes.getWithWildcards(sceneMatcher.namePattern()).stream()
+                .map(WildcardMap.Entry::value)
+                .toList();
+      }
+    }
+    //    Next: create scene object with Group and a WildcardMap for geometries. Remove geometries
+    // where appropriate. Then apply that data structure elsewhere in the file.
   }
 
   // delete scene(s)

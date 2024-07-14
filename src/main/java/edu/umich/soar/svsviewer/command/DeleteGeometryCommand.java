@@ -6,6 +6,6 @@ public record DeleteGeometryCommand(NameMatcher sceneMatcher, NameMatcher geomet
     implements Command {
   @Override
   public void interpret(GeometryManager geoManager) {
-    System.out.println("TODO: interpret " + getClass().getName());
+    geoManager.deleteGeometry(sceneMatcher, geometryMatcher);
   }
 }

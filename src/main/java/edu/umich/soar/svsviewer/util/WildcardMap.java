@@ -17,7 +17,7 @@ public class WildcardMap<T> implements Map<String, T> {
     T value;
   }
 
-  record Entry<T>(String key, T value) {}
+  public record Entry<T>(String key, T value) {}
 
   @Override
   public T put(String key, T value) {
