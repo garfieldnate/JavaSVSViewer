@@ -2,6 +2,8 @@ module edu.umich.soar.svsviewer {
   requires javafx.controls;
   requires javafx.fxml;
   requires jakarta.annotation;
+  requires java.desktop;
+  requires javafx.swing;
 
   opens edu.umich.soar.svsviewer to
       javafx.fxml;
