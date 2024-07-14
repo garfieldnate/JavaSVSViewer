@@ -1,4 +1,4 @@
-package edu.umich.soar.svsviewer.geometry;
+package edu.umich.soar.svsviewer.scene;
 
 import javafx.scene.Group;
 

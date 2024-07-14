@@ -1,7 +1,7 @@
 package edu.umich.soar.svsviewer;
 
 import edu.umich.soar.svsviewer.command.Command;
-import edu.umich.soar.svsviewer.geometry.GeometryManager;
+import edu.umich.soar.svsviewer.scene.GeometryManager;
 import edu.umich.soar.svsviewer.parsing.Parser;
 import edu.umich.soar.svsviewer.parsing.Tokenizer;
 import javafx.application.Platform;

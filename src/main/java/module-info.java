@@ -12,8 +12,8 @@ module edu.umich.soar.svsviewer {
   opens edu.umich.soar.svsviewer.command to
       javafx.fxml;
 
-  exports edu.umich.soar.svsviewer.geometry;
+  exports edu.umich.soar.svsviewer.scene;
 
-  opens edu.umich.soar.svsviewer.geometry to
+  opens edu.umich.soar.svsviewer.scene to
       javafx.fxml;
 }

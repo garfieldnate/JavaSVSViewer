@@ -1,7 +1,7 @@
 package edu.umich.soar.svsviewer.command;
 
-import edu.umich.soar.svsviewer.geometry.Geometry;
-import edu.umich.soar.svsviewer.geometry.GeometryManager;
+import edu.umich.soar.svsviewer.scene.Geometry;
+import edu.umich.soar.svsviewer.scene.GeometryManager;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 
