@@ -124,4 +124,30 @@ public class GeometryManager {
     //    TODO: converting to Geometries here is dumb; should be using them internally, if at all.
     return matchedGeometries.stream().map(Geometry::new).toList();
   }
+
+  public void addGeometry(NameMatcher sceneMatcher, String geometryName) {
+    List<Scene> scenesToUpdate;
+    switch (sceneMatcher.matchType()) {
+      case EXACT -> {
+        Scene scene = scenes.get(sceneMatcher.namePattern());
+        if (scene != null) {
+          scenesToUpdate = Collections.singletonList(scene);
+        } else {
+          // no scenes matched
+          return;
+        }
+      }
+      case WILDCARD ->
+          scenesToUpdate =
+              scenes.getWithWildcards(sceneMatcher.namePattern()).stream()
+                  .map(WildcardMap.Entry::value)
+                  .toList();
+      default ->
+          throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
+    }
+    for (Scene s : scenesToUpdate) {
+      // TODO: is it correct to create new geometries only if they don't exist already?
+      s.geometries.computeIfAbsent(geometryName, n -> new Group());
+    }
+  }
 }

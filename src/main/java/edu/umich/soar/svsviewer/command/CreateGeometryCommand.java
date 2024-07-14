@@ -6,6 +6,6 @@ public record CreateGeometryCommand(NameMatcher sceneMatcher, String geometryNam
     implements Command {
   @Override
   public void interpret(GeometryManager geoManager) {
-    System.out.println("TODO: interpret " + getClass().getName());
+    geoManager.addGeometry(sceneMatcher, geometryName);
   }
 }
