@@ -28,6 +28,8 @@ public class SceneController {
 
   private Server server;
 
+  private static int screenshotCounter = 0;
+
   @FXML
   public void initialize() {
 
@@ -53,18 +55,6 @@ public class SceneController {
         });
     viewerScene.setFocusTraversable(true);
 
-    //    TODO: Just testing code here; this should be triggered by SaveCommand
-    WritableImage image = viewerScene.snapshot(new SnapshotParameters(), null);
-    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
-
-    // Specify the file path and name
-    File outputFile = new File("svsViewer.png");
-    try {
-      ImageIO.write(bufferedImage, "png", outputFile);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
     GeometryManager geometryManager = new GeometryManager(contentGroup);
     Consumer<String> inputProcessor =
         (String line) -> {
@@ -85,7 +75,7 @@ public class SceneController {
           for (Command command : parsed) {
             // we're on the server thread, but the UI must be updated on the main thread; runLater()
             // takes care of that
-            Platform.runLater(() -> command.interpret(geometryManager));
+            Platform.runLater(() -> command.interpret(geometryManager, this));
           }
         };
 
@@ -93,5 +83,42 @@ public class SceneController {
     Thread th = new Thread(server);
     th.setDaemon(true);
     th.start();
+  }
+
+  /** Save an image file showing the current viewer scene */
+  public void saveScreenshot() {
+    File outputFile = getScreenshotFile();
+    WritableImage image = viewerScene.snapshot(new SnapshotParameters(), null);
+    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+
+    try {
+      ImageIO.write(bufferedImage, "png", outputFile);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * @return svs_screenshot{suffix}.png, where {suffix} is either empty or a number chosen
+   *     sequentially to avoid overwriting any existing files.
+   */
+  private File getScreenshotFile() {
+    String suffix;
+    if (screenshotCounter == 0) {
+      suffix = "";
+    } else {
+      suffix = Integer.toString(screenshotCounter);
+    }
+    screenshotCounter++;
+    String baseFileName = "svs_screenshot";
+    String extension = "png";
+
+    File outputFile;
+    do {
+      outputFile = new File(baseFileName + suffix + extension);
+      screenshotCounter++;
+      suffix = Integer.toString(screenshotCounter);
+    } while (outputFile.exists());
+    return outputFile;
   }
 }

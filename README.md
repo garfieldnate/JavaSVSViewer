@@ -30,12 +30,14 @@ provider?), which is pulling from Server?
   [X] receive SVS commands (POC: just print them out)
   [X] add wildcard-trie to GeometryManager so we can retrieve scenes/geometries using wildcards.
   [ ] interpret parsed commands
-	- [%] update geometry (assuming one scene)
+	- [ ] NEXT: update geometry
+		- [ ] spike: show a correct box
+	- [ ] layer
 	- [X] new scene
 	- [X] new geometry
 	- [X] delete scenes
 	- [X] delete geometries
-	- [ ] NEXT: save
+	- [X] save
 - [ ] inject Socket?
 - [ ] what is controller actually supposed to do?
 - [ ] can I really not specify default port in the FXML? Maybe has to be somewhere else? Is DI not possible? Do I not
@@ -68,6 +70,7 @@ provider?), which is pulling from Server?
   [ ] log received commands
 - [ ] console
 - [ ] a Window user can open?
+- [ ] https://github.com/TestFX/TestFX
 
 ### 3D Display,
 

@@ -1,5 +1,6 @@
 package edu.umich.soar.svsviewer.command;
 
+import edu.umich.soar.svsviewer.SceneController;
 import edu.umich.soar.svsviewer.scene.Geometry;
 import edu.umich.soar.svsviewer.scene.GeometryManager;
 import javafx.scene.paint.PhongMaterial;
@@ -22,7 +23,7 @@ public record UpdateGeometryCommand(
     implements Command {
 
   @Override
-  public void interpret(GeometryManager geoManager) {
+  public void interpret(GeometryManager geoManager, SceneController sceneController) {
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
       Box testBox = new Box(5, 5, 5);
       testBox.setMaterial(new PhongMaterial());
