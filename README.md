@@ -111,6 +111,7 @@ ideas:
 [ ] maybe 1,2,3,4,5,6,7,8 to view from different corners
 [ ] arrow keys move camera to sides
 [ ] mouse rotation
+[ ] regex to show/hide certain labels or objects
 
 - https://www.youtube.com/watch?v=yinIKzg7duc
   [ ] shift mouse translates camera?

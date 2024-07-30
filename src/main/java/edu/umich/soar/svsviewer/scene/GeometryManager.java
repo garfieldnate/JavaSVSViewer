@@ -16,19 +16,30 @@ public class GeometryManager {
 
   private static class Scene {
     private final WildcardMap<Group> geometries = new WildcardMap<>();
+    private final Group root = new Group();
   }
 
   private final WildcardMap<Scene> scenes = new WildcardMap<>();
 
-  //  TODO: for now we are just using the one root!
-  private final Group root;
+  private final Group contentGroup;
 
-  public GeometryManager(Group root) {
-    this.root = root;
+  public GeometryManager(Group contentGroup) {
+    this.contentGroup = contentGroup;
   }
 
   public void createSceneIfNotExists(String sceneName) {
-    scenes.computeIfAbsent(sceneName, (key) -> new Scene());
+    scenes.computeIfAbsent(
+        sceneName,
+        (key) -> {
+          Scene s = new Scene();
+          //    TODO: for now, we are always displaying only the S1 scene. Will probably enable
+          // showing
+          // different scenes on different tabs or something.
+          if (sceneName.equals("S1")) {
+            contentGroup.getChildren().add(s.root);
+          }
+          return s;
+        });
   }
 
   public void deleteScene(NameMatcher sceneMatcher) {
@@ -147,7 +158,13 @@ public class GeometryManager {
     }
     for (Scene s : scenesToUpdate) {
       // TODO: is it correct to create new geometries only if they don't exist already?
-      s.geometries.computeIfAbsent(geometryName, n -> new Group());
+      s.geometries.computeIfAbsent(
+          geometryName,
+          n -> {
+            Group group = new Group();
+            s.root.getChildren().add(group);
+            return group;
+          });
     }
   }
 }
