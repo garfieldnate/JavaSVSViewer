@@ -62,10 +62,10 @@ public record UpdateGeometryCommand(
         group.setScaleZ(scale.get(2));
       }
 
-      //      Next: can't see anything! Need to correctly specify texture and face coordinates to
-      // make the triangles visible. Texture can be set to (0,0) for all vertices. Faces... I guess
-      // we just count off every 3 and set that to a new face number?
-      // We can also specify normals, which is done in svs_viewer (see calc_normals).
+      //      Next: can't see anything! Need to correctly specify face coordinates to
+      // make the triangles visible. I guess we just count off every 3 and set that to
+      // a new face number? We can also specify normals, which is done in svs_viewer (see
+      // calc_normals).
       if (vertices != null) {
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
@@ -116,18 +116,48 @@ public record UpdateGeometryCommand(
 
   //        https://stackoverflow.com/a/61239299/474819
   private TriangleMesh verticesToTriangleMesh(List<Vertex> vertices) {
-    float[] pointArray = new float[vertices.size() * 3];
+    //    TODO: NEXT: mesh still not showing. Try specifying normal.
+    float[] points = new float[vertices.size() * 3];
     int index = 0;
     for (Float f :
         vertices.stream()
             .flatMap(v -> Stream.of(v.x(), v.y(), v.z()))
             .map(Double::floatValue)
             .toList()) {
-      pointArray[index] = f;
+      points[index] = f;
       index++;
     }
+
+    float[] textureUVCoordinates = new float[vertices.size() * 2];
+    // dummy texture coordinates; we don't support texturing, but we have to specify the coordinates
+    // to
+    // show the mesh
+    for (int i = 0; i < vertices.size() * 2; i += 2) {
+      textureUVCoordinates[i] = 0;
+      textureUVCoordinates[+1] = 0;
+    }
+
+    //    TODO: if we specify normals, will be * 3 * 3
+    int[] faces = new int[vertices.size() * 3 * 2];
+    int faceIndex = 0;
+    for (int i = 0; i < vertices.size() * 3 * 2; i += 3 * 2) {
+      faces[i] = faceIndex;
+      // dummy texture coordinate
+      faces[i + 1] = 0;
+      faces[i + 2] = faceIndex;
+      // dummy texture coordinate
+      faces[i + 3] = 0;
+      faces[i + 4] = faceIndex;
+      // dummy texture coordinate
+      faces[i + 5] = 0;
+
+      faceIndex++;
+    }
+
     TriangleMesh mesh = new TriangleMesh();
-    mesh.getPoints().setAll(pointArray);
+    mesh.getPoints().setAll(points);
+    mesh.getTexCoords().setAll(textureUVCoordinates);
+    mesh.getFaces().setAll(faces);
     return mesh;
   }
 
