@@ -134,6 +134,7 @@ other:
 	- needs to explain when to use normals and when not to
 	- validation of faces array needs to be more specific
 	- fix typos
+	- add getPointElementSize(), getTexCoordElementSize(), etc. in warnings where printed literally
 
 ### Settings
 
