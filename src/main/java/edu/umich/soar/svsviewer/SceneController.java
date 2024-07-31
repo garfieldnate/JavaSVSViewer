@@ -5,12 +5,14 @@ import edu.umich.soar.svsviewer.scene.GeometryManager;
 import edu.umich.soar.svsviewer.parsing.Parser;
 import edu.umich.soar.svsviewer.parsing.Tokenizer;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.SubScene;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javax.imageio.ImageIO;
@@ -27,6 +29,10 @@ public class SceneController {
   @FXML private SubScene viewerScene;
 
   private Server server;
+
+  double anchorX;
+  double anchorY;
+  double anchorAngle;
 
   private static int screenshotCounter = 0;
 
@@ -54,6 +60,24 @@ public class SceneController {
           }
         });
     viewerScene.setFocusTraversable(true);
+
+    contentGroup.setOnMousePressed(
+        new EventHandler<MouseEvent>() {
+          @Override
+          public void handle(MouseEvent event) {
+            anchorX = event.getSceneX();
+            anchorY = event.getSceneY();
+            anchorAngle = contentGroup.getRotate();
+          }
+        });
+
+    contentGroup.setOnMouseDragged(
+        new EventHandler<MouseEvent>() {
+          @Override
+          public void handle(MouseEvent event) {
+            contentGroup.setRotate(anchorAngle + anchorX - event.getSceneX());
+          }
+        });
 
     GeometryManager geometryManager = new GeometryManager(contentGroup);
     Consumer<String> inputProcessor =
