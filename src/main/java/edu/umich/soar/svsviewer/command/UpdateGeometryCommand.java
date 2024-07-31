@@ -60,7 +60,8 @@ public record UpdateGeometryCommand(
         geometry.getGroup().getChildren().add(meshView);
       }
       if (radius != null) {
-        System.err.println("TODO: interpret radius in " + getClass().getName());
+        Sphere s = new Sphere(radius);
+        geometry.getGroup().getChildren().add(s);
       }
       if (text != null) {
         System.err.println("TODO: interpret text in " + getClass().getName());
