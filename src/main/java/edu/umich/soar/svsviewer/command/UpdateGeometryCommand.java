@@ -28,6 +28,9 @@ public record UpdateGeometryCommand(
     Double lineWidth)
     implements Command {
 
+  //  TODO: updating vertices, radius, or text below should clear all existing vertices, radius and
+  // text (see calls to free_geom_shape in svs_viewer)
+
   @Override
   public void interpret(GeometryManager geoManager, SceneController sceneController) {
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
@@ -38,8 +41,8 @@ public record UpdateGeometryCommand(
 
       if (position != null) {
         group.setTranslateX(position.get(0));
-        group.setTranslateY(position.get(0));
-        group.setTranslateZ(position.get(0));
+        group.setTranslateY(position.get(1));
+        group.setTranslateZ(position.get(2));
       }
       if (rotation != null) {
         System.err.println("TODO: translate viewer's quaternions to JavaFX's 3D rotations");
@@ -64,17 +67,33 @@ public record UpdateGeometryCommand(
         geometry.getGroup().getChildren().add(s);
       }
       if (text != null) {
+        // svs_viewer calls draw_text(g->text, 0, 0), which would draw at the origin no matter where
+        // the geometry is;
+        // that seems wrong. I think maybe it was never implemented properly because it's not
+        // actually supported in SGEL.
+        // TODO: since it's not in SGEL, we can probably safely remove it.
         System.err.println("TODO: interpret text in " + getClass().getName());
       }
       if (layer != null) {
+        // TODO: not supported in SGEL, so we can probably safely remove it.
         System.err.println("TODO: interpret layer in " + getClass().getName());
       }
       if (lineWidth != null) {
-        System.err.println("TODO: interpret lineWidth in " + getClass().getName());
+        // I assume that line width was meant for use with DrawMode.LINE (wireframes). This is not
+        // supported in JavaFX
+        // because there's no (or not guaranteed to be any) hardware support for it.
+        // svs_viewer used glLineWidth, and the docs
+        // (https://registry.khronos.org/OpenGL-Refpages/gl4/html/glLineWidth.xhtml)
+        // say that only width 1 is guaranteed to be supported.
+        // TODO: This isn't supported in SGEL anyway, so we can probably safely remove it.
+        // https://stackoverflow.com/a/59615984/474819
+        System.err.println(
+            "Setting line width is not supported. Sorry! in " + getClass().getName());
       }
 
       if (color != null) {
-        System.err.println("TODO: interpret color in " + getClass().getName());
+        //        TODO: Soar's SVS doesn't support setting color, even though the viewer supports
+        // it. Fix that!
         for (Node child : geometry.getGroup().getChildren()) {
           if (child instanceof Shape3D shape) {
             shape.setMaterial(

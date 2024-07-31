@@ -72,12 +72,15 @@ provider?), which is pulling from Server?
 - [ ] a Window user can open?
 - [ ] https://github.com/TestFX/TestFX
 
-### 3D Display,
+### 3D Display
 
-[ ] boxes from SVS
-[ ] meshes from SVS
+[%] meshes from SVS
+[%] spheres from SVS
 [ ] labels from SVS
-[ ] grid lines
+
+- https://stackoverflow.com/questions/46011515/static-2d-text-over-3d-scene-in-javafx-java
+- screen coords for drawing text: `geometry.getGroup().localToScreen(0,0,0)`
+  [ ] grid lines
 
 ### List Display
 
