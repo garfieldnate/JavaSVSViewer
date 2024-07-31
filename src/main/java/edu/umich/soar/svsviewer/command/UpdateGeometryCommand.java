@@ -3,11 +3,13 @@ package edu.umich.soar.svsviewer.command;
 import edu.umich.soar.svsviewer.SceneController;
 import edu.umich.soar.svsviewer.scene.Geometry;
 import edu.umich.soar.svsviewer.scene.GeometryManager;
+import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
+import javafx.scene.transform.Rotate;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +35,8 @@ public record UpdateGeometryCommand(
 
   @Override
   public void interpret(GeometryManager geoManager, SceneController sceneController) {
+    //    TODO: do the work before the loop and then just apply it in the loop (instead of repeating
+    // the work in the loop)
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
       Group group = geometry.getGroup();
 
@@ -53,8 +57,7 @@ public record UpdateGeometryCommand(
         group.setTranslateZ(position.get(2));
       }
       if (rotation != null) {
-        System.err.println("TODO: translate viewer's quaternions to JavaFX's 3D rotations");
-        //        rotateWithQuaternion(rotation, group);
+        rotateWithQuaternion(rotation, group);
       }
       if (scale != null) {
         group.setScaleX(scale.get(0));
@@ -161,33 +164,35 @@ public record UpdateGeometryCommand(
     return mesh;
   }
 
-  //    TODO: finish this
-  //  private void rotateWithQuaternion(List<Double> rotation, Group group) {
-  //    // Assuming quaternion is given as (w, x, y, z)
-  //    double w = quaternion.getW();
-  //    double x = quaternion.getX();
-  //    double y = quaternion.getY();
-  //    double z = quaternion.getZ();
-  //
-  //// Convert quaternion to Euler angles (roll, pitch, yaw)
-  //    double roll = Math.atan2(2.0 * (w * x + y * z), 1.0 - 2.0 * (x * x + y * y));
-  //    double pitch = Math.asin(2.0 * (w * y - z * x));
-  //    double yaw = Math.atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z));
-  //
-  //// Convert radians to degrees as JavaFX uses degrees for rotations
-  //    double rollDegrees = Math.toDegrees(roll);
-  //    double pitchDegrees = Math.toDegrees(pitch);
-  //    double yawDegrees = Math.toDegrees(yaw);
-  //
-  //// Apply rotations to the node
-  //    node.getTransforms().addAll(
-  //      new Rotate(rollDegrees, Rotate.X_AXIS),
-  //      new Rotate(pitchDegrees, Rotate.Y_AXIS),
-  //      new Rotate(yawDegrees, Rotate.Z_AXIS)
-  //    );
-  //
-  //
-  //  }
+  private void rotateWithQuaternion(List<Double> quaternion, Group group) {
+    Rotate rotation = quaternionToRotation(quaternion);
+
+    // Override any other existing rotations
+    group.getTransforms().removeIf(transform -> transform instanceof Rotate);
+    group.getTransforms().add(rotation);
+  }
+
+  //  TODO: create dedicated quaternion object instead of using a list
+  private Rotate quaternionToRotation(List<Double> quaternion) {
+    double x = quaternion.get(0);
+    double y = quaternion.get(1);
+    double z = quaternion.get(2);
+    double w = quaternion.get(3);
+
+    double s = Math.sqrt(1 - w * w);
+    double angle = Math.toDegrees(2d * Math.acos(w));
+
+    // normalize, but only if not too small (to avoid stability or divide-by-zero errors)
+    // TODO: explain why we do this normalization. Is it really necessary?
+    if (s > 0.00001) {
+      x /= s;
+      y /= s;
+      z /= s;
+    }
+
+    Point3D rotationAxis = new Point3D(x, y, z);
+    return new Rotate(angle, rotationAxis);
+  }
 
   public record Vertex(double x, double y, double z) {}
 }

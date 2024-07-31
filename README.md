@@ -128,13 +128,16 @@ ideas:
 other:
 
 - [ ] change package name. I am not associated with UMich.
-- [ ] send a PR to improve TriangleMesh documentation
-	- needs to explain texture coordinates
-	- needs an example for point, texture, and normal data setting
-	- needs to explain when to use normals and when not to
-	- validation of faces array needs to be more specific
-	- fix typos
-	- add getPointElementSize(), getTexCoordElementSize(), etc. in warnings where printed literally
+- [ ] send a PR to improve JavaFX javadocs
+	- TriangleMesh
+		- needs to explain texture coordinates
+		- needs an example for point, texture, and normal data setting
+		- needs to explain when to use normals and when not to
+		- validation of faces array needs to be more specific
+		- fix typos
+		- add getPointElementSize(), getTexCoordElementSize(), etc. in warnings where printed literally
+	- Rotate
+		- does the rotation axis need to be normalized?
 
 ### Settings
 
