@@ -4,13 +4,12 @@ import edu.umich.soar.svsviewer.SceneController;
 import edu.umich.soar.svsviewer.scene.Geometry;
 import edu.umich.soar.svsviewer.scene.GeometryManager;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
-import javafx.scene.shape.CullFace;
-import javafx.scene.shape.MeshView;
-import javafx.scene.shape.TriangleMesh;
+import javafx.scene.shape.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -34,8 +33,8 @@ public record UpdateGeometryCommand(
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
       Group group = geometry.getGroup();
 
-      //      Box testBox = new Box(5, 5, 5);
-      //      geometry.getGroup().getChildren().add(testBox);
+      Box testBox = new Box(5, 5, 5);
+      geometry.getGroup().getChildren().add(testBox);
 
       if (position != null) {
         group.setTranslateX(position.get(0));
@@ -52,16 +51,11 @@ public record UpdateGeometryCommand(
         group.setScaleZ(scale.get(2));
       }
 
-      if (color != null) {
-        System.err.println("TODO: interpret color in " + getClass().getName());
-      }
-
       //      Next: can't see anything! Maybe we need to implement rotating so that we can find it?
       //      or maybe this is all wrong, since the vertices actually specify a polyhedron directly.
       if (vertices != null) {
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
-        meshView.setMaterial(new PhongMaterial(Color.FIREBRICK));
         meshView.setCullFace(CullFace.NONE);
         geometry.getGroup().getChildren().add(meshView);
       }
@@ -76,6 +70,16 @@ public record UpdateGeometryCommand(
       }
       if (lineWidth != null) {
         System.err.println("TODO: interpret lineWidth in " + getClass().getName());
+      }
+
+      if (color != null) {
+        System.err.println("TODO: interpret color in " + getClass().getName());
+        for (Node child : geometry.getGroup().getChildren()) {
+          if (child instanceof Shape3D shape) {
+            shape.setMaterial(
+                new PhongMaterial(new Color(color.get(0), color.get(1), color.get(2), 1)));
+          }
+        }
       }
     }
   }
