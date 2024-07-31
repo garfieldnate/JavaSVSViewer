@@ -36,8 +36,16 @@ public record UpdateGeometryCommand(
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
       Group group = geometry.getGroup();
 
+      //      TODO: stop displaying these dummy objects!
       Box testBox = new Box(5, 5, 5);
       geometry.getGroup().getChildren().add(testBox);
+      //      TODO: can't see anything. Try out
+      //      TriangleMesh testMesh = new TriangleMesh();
+      //      testMesh.getPoints().setAll(5f, -5f, 5f, -5f, -5f, 5f, -5f, 5f, 5f);
+      //      testMesh.getTexCoords().setAll(1, 1);
+      //      MeshView testMeshView = new MeshView(testMesh);
+      //      testMeshView.setCullFace(CullFace.NONE);
+      //      geometry.getGroup().getChildren().add(testMeshView);
 
       if (position != null) {
         group.setTranslateX(position.get(0));
@@ -54,8 +62,10 @@ public record UpdateGeometryCommand(
         group.setScaleZ(scale.get(2));
       }
 
-      //      Next: can't see anything! Maybe we need to implement rotating so that we can find it?
-      //      or maybe this is all wrong, since the vertices actually specify a polyhedron directly.
+      //      Next: can't see anything! Need to correctly specify texture and face coordinates to
+      // make the triangles visible. Texture can be set to (0,0) for all vertices. Faces... I guess
+      // we just count off every 3 and set that to a new face number?
+      // We can also specify normals, which is done in svs_viewer (see calc_normals).
       if (vertices != null) {
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
@@ -117,7 +127,7 @@ public record UpdateGeometryCommand(
       index++;
     }
     TriangleMesh mesh = new TriangleMesh();
-    mesh.getPoints().addAll(pointArray);
+    mesh.getPoints().setAll(pointArray);
     return mesh;
   }
 

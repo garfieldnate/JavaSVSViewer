@@ -125,6 +125,10 @@ ideas:
 - cube thing for rotation?
 - minimap for translation?
 
+other:
+
+- [ ] change package name. I am not associated with UMich.
+
 ### Settings
 
 [ ] save/load settings on user's machine somewhere
