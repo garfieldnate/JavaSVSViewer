@@ -43,6 +43,7 @@ provider?), which is pulling from Server?
 - [ ] can I really not specify default port in the FXML? Maybe has to be somewhere else? Is DI not possible? Do I not
   understand FXML well enough?
   [ ] connect/disconnect occur gracefully
+  - currently doesn't allow reconnecting at all
   [ ] graceful error when port is already in use
 
 [X] command parser

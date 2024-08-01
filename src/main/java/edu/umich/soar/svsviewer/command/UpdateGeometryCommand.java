@@ -1,5 +1,7 @@
 package edu.umich.soar.svsviewer.command;
 
+import com.github.quickhull3d.Point3d;
+import com.github.quickhull3d.QuickHull3D;
 import edu.umich.soar.svsviewer.SceneController;
 import edu.umich.soar.svsviewer.scene.Geometry;
 import edu.umich.soar.svsviewer.scene.GeometryManager;
@@ -11,6 +13,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -36,13 +39,14 @@ public record UpdateGeometryCommand(
   @Override
   public void interpret(GeometryManager geoManager, SceneController sceneController) {
     //    TODO: do the work before the loop and then just apply it in the loop (instead of repeating
-    // the work in the loop)
+    // the work in the loop). Might need to copy, though, because another command might modify only
+    // part of this list.
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
       Group group = geometry.getGroup();
 
       //      TODO: stop displaying these dummy objects!
-      Box testBox = new Box(5, 5, 5);
-      geometry.getGroup().getChildren().add(testBox);
+      //      Box testBox = new Box(5, 5, 5);
+      //      geometry.getGroup().getChildren().add(testBox);
       //      TODO: can't see anything. Try out
       //      TriangleMesh testMesh = new TriangleMesh();
       //      testMesh.getPoints().setAll(5f, -5f, 5f, -5f, -5f, 5f, -5f, 5f, 5f);
@@ -119,51 +123,59 @@ public record UpdateGeometryCommand(
 
   // Reference: https://stackoverflow.com/a/61239299/474819
   private TriangleMesh verticesToTriangleMesh(List<Vertex> vertices) {
-    //    TODO: NEXT: This is all wrong. We need to compute the convex hull, as that's what's
-    // specified with SVS vertices.
-    // do a spike with https://github.com/Quickhull3d/quickhull3d; need to call triangulate() on
-    // result.
-    float[] points = new float[vertices.size() * 3];
-    int index = 0;
-    for (Float f :
-        vertices.stream()
-            .flatMap(v -> Stream.of(v.x(), v.y(), v.z()))
-            .map(Double::floatValue)
-            .toList()) {
-      points[index] = f;
-      index++;
+    Point3d[] points =
+        vertices.stream().map(v -> new Point3d(v.x(), v.y(), v.z())).toArray(Point3d[]::new);
+
+    // TODO: draw a point if only one vertex
+    // TODO: draw a line segment if only two vertices
+    // TODO: draw a triangle if only three vertices
+    // NOTE: as in svs_viewer, we don't handle polygons besides triangles
+    QuickHull3D hull = new QuickHull3D();
+    //    TODO: catch IllegalArgumentException, print it and the name of the geometry
+    hull.build(points);
+    // we need triangles to use TriangleMesh; generally we have very simple shapes in SVS, so we
+    // don't worry about thin triangles or other mentioned potential numerical stability issues
+    hull.triangulate();
+
+    Point3d[] qh3dPoints = hull.getVertices();
+
+    float[] jfxPoints = new float[qh3dPoints.length * 3];
+    for (int i = 0; i < qh3dPoints.length; i++) {
+      int outIndex = i * 3;
+      jfxPoints[outIndex] = (float) qh3dPoints[i].x;
+      jfxPoints[outIndex + 1] = (float) qh3dPoints[i].y;
+      jfxPoints[outIndex + 2] = (float) qh3dPoints[i].z;
     }
 
-    float[] textureUVCoordinates = new float[vertices.size() * 2];
-    // dummy texture coordinates; we don't support texturing, but we have to specify the coordinates
-    // to
-    // show the mesh
-    for (int i = 0; i < vertices.size() * 2; i += 2) {
-      textureUVCoordinates[i] = 0;
-      textureUVCoordinates[+1] = 0;
-    }
+    // All 0's; we don't support textures
+    float[] dummyTextureCoords = new float[qh3dPoints.length * 2];
+    //    System.out.println("texture coords:");
+    //    System.out.println(Arrays.toString(dummyTextureCoords));
 
-    //    TODO: if we specify normals, will be * 3 * 3
-    int[] faces = new int[vertices.size() * 3 * 2];
-    int faceIndex = 0;
-    for (int i = 0; i < vertices.size() * 3 * 2; i += 3 * 2) {
-      faces[i] = faceIndex;
-      // dummy texture coordinate
-      faces[i + 1] = 0;
-      faces[i + 2] = faceIndex;
-      // dummy texture coordinate
-      faces[i + 3] = 0;
-      faces[i + 4] = faceIndex;
-      // dummy texture coordinate
-      faces[i + 5] = 0;
-
-      faceIndex++;
+    //    System.out.println("Faces:");
+    //    [faceIndex][index] = vertexIndex
+    int[][] qh3Dfaces = hull.getFaces(); // CLOCKWISE);
+    //    for (int[] array : qh3Dfaces) {
+    //      System.out.println(Arrays.toString(array));
+    //    }
+    // flatten for Triangle Mesh
+    int[] jfxFaces = new int[qh3Dfaces.length * 6];
+    for (int i = 0; i < qh3Dfaces.length; i++) {
+      int outIndex = i * 6;
+      jfxFaces[outIndex] = qh3Dfaces[i][0];
+      jfxFaces[outIndex + 1] = 0;
+      jfxFaces[outIndex + 2] = qh3Dfaces[i][1];
+      jfxFaces[outIndex + 3] = 0;
+      jfxFaces[outIndex + 4] = qh3Dfaces[i][2];
+      jfxFaces[outIndex + 5] = 0;
     }
+    //    System.out.println(Arrays.toString(jfxFaces));
 
     TriangleMesh mesh = new TriangleMesh();
-    mesh.getPoints().setAll(points);
-    mesh.getTexCoords().setAll(textureUVCoordinates);
-    mesh.getFaces().setAll(faces);
+    mesh.getPoints().setAll(jfxPoints);
+    mesh.getFaces().setAll(jfxFaces);
+    mesh.getTexCoords().setAll(dummyTextureCoords);
+
     return mesh;
   }
 

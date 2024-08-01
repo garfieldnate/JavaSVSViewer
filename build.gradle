@@ -26,8 +26,8 @@ tasks.withType(JavaCompile) {
 
 application {
 	mainModule = 'edu.umich.soar.svsviewer'
-//	mainClass = 'edu.umich.soar.svsviewer.SvsViewerApplication'
-	mainClass = 'edu.umich.soar.svsviewer.RectangleViewer'
+	mainClass = 'edu.umich.soar.svsviewer.SvsViewerApplication'
+//	mainClass = 'edu.umich.soar.svsviewer.CubeViewer'
 }
 
 javafx {
