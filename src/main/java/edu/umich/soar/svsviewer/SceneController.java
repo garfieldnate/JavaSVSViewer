@@ -5,6 +5,8 @@ import edu.umich.soar.svsviewer.scene.GeometryManager;
 import edu.umich.soar.svsviewer.parsing.Parser;
 import edu.umich.soar.svsviewer.parsing.Tokenizer;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -32,12 +34,22 @@ public class SceneController {
 
   double anchorX;
   double anchorY;
-  double anchorAngle;
+  double anchorAngleX;
+  double anchorAngleY;
+
+  private final DoubleProperty angleX = new SimpleDoubleProperty(0);
+  private final DoubleProperty angleY = new SimpleDoubleProperty(0);
 
   private static int screenshotCounter = 0;
 
   @FXML
   public void initialize() {
+
+    //    TODO: Either SVS and JavaFX have different ideas of axes, or the camera
+    // location is off. For now we just rotate the scene here to make FloorPlan1
+    // appear nice by default. Probably need to display axes first to figure out the
+    // correct answer.
+    contentGroup.getTransforms().add(new Rotate(90, Rotate.X_AXIS));
 
     // Create and position camera
     PerspectiveCamera camera = new PerspectiveCamera(true);
@@ -61,23 +73,7 @@ public class SceneController {
         });
     viewerScene.setFocusTraversable(true);
 
-    contentGroup.setOnMousePressed(
-        new EventHandler<MouseEvent>() {
-          @Override
-          public void handle(MouseEvent event) {
-            anchorX = event.getSceneX();
-            anchorY = event.getSceneY();
-            anchorAngle = contentGroup.getRotate();
-          }
-        });
-
-    contentGroup.setOnMouseDragged(
-        new EventHandler<MouseEvent>() {
-          @Override
-          public void handle(MouseEvent event) {
-            contentGroup.setRotate(anchorAngle + anchorX - event.getSceneX());
-          }
-        });
+    initMouseControls(contentGroup, viewerScene);
 
     GeometryManager geometryManager = new GeometryManager(contentGroup);
     Consumer<String> inputProcessor =
@@ -107,6 +103,30 @@ public class SceneController {
     Thread th = new Thread(server);
     th.setDaemon(true);
     th.start();
+  }
+
+  private void initMouseControls(Group group, SubScene scene) {
+    Rotate xRotate = new Rotate(0, Rotate.X_AXIS);
+    Rotate yRotate = new Rotate(0, Rotate.Z_AXIS);
+
+    xRotate.angleProperty().bind(angleX);
+    yRotate.angleProperty().bind(angleY);
+
+    group.getTransforms().addAll(xRotate, yRotate);
+
+    scene.setOnMousePressed(
+        event -> {
+          anchorX = event.getSceneX();
+          anchorY = event.getSceneY();
+          anchorAngleX = angleX.get();
+          anchorAngleY = angleY.get();
+        });
+
+    scene.setOnMouseDragged(
+        event -> {
+          angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
+          angleY.set(anchorAngleY - (anchorX - event.getSceneX()));
+        });
   }
 
   /** Save an image file showing the current viewer scene */
