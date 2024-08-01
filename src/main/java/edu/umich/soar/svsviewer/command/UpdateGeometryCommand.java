@@ -117,9 +117,13 @@ public record UpdateGeometryCommand(
     }
   }
 
-  //        https://stackoverflow.com/a/61239299/474819
+  // Reference: https://stackoverflow.com/a/61239299/474819
   private TriangleMesh verticesToTriangleMesh(List<Vertex> vertices) {
-    //    TODO: NEXT: mesh still not showing. Try specifying normal.
+    //    TODO: NEXT: This is all wrong. We need to compute the convex hull, as that's what's
+    // specified with SVS vertices.
+    // do a spike with https://github.com/Quickhull3d/quickhull3d; may also need another library to
+    // triangulate the
+    // faces, as JavaFX's TriangleMesh requires triangles.
     float[] points = new float[vertices.size() * 3];
     int index = 0;
     for (Float f :
