@@ -9,6 +9,15 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 ## Progress
 
+NEXT: prioritize features likely needed for preview release
+
+- reconnect
+- message saying "waiting for connection at port 12122; connect from Soar with `svs connect_viewer 12122`."
+- cross-platform distributables building in CI
+- display labels
+- display axes
+- wireframe
+
 ### Design
 
 [X] Hello World
@@ -30,8 +39,8 @@ provider?), which is pulling from Server?
   [X] receive SVS commands (POC: just print them out)
   [X] add wildcard-trie to GeometryManager so we can retrieve scenes/geometries using wildcards.
   [ ] interpret parsed commands
-	- [ ] NEXT: update geometry
-		- [ ] spike: show a correct box
+	- [X] update geometry
+		- [X] spike: show a correct box
 	- [ ] layer
 	- [X] new scene
 	- [X] new geometry
@@ -43,24 +52,8 @@ provider?), which is pulling from Server?
 - [ ] can I really not specify default port in the FXML? Maybe has to be somewhere else? Is DI not possible? Do I not
   understand FXML well enough?
   [ ] connect/disconnect occur gracefully
-  - currently doesn't allow reconnecting at all
-  [ ] graceful error when port is already in use
-
-[X] command parser
-
-- [X] ignore comments
-- [X] split on space(s)
-- [X] `save <path>`
-- [X] `layer <num> <0/1> <num> ...?`
-- [X] `draw? <scene_pat> <geom_pat> <args...>`
-- `<scene_pat>`
-- `-` deletes scene
-- `+` finds or creates scene
-- `<geom_pat>`
-- `-` deletes geometry
-- `+` finds or creates geometry
-- `<args...>`
-- `[prscvbtlw]`. see `proc_geom_cmd`.
+	- currently doesn't allow reconnecting at all
+	  [ ] graceful error when port is already in use
 
 [ ] testing
 
@@ -75,8 +68,8 @@ provider?), which is pulling from Server?
 
 ### 3D Display
 
-[%] meshes from SVS
-[%] spheres from SVS
+[X] meshes from SVS
+[X] spheres from SVS
 [ ] labels from SVS
 
 - https://stackoverflow.com/questions/46011515/static-2d-text-over-3d-scene-in-javafx-java

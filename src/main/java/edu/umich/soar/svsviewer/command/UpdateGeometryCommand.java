@@ -69,10 +69,6 @@ public record UpdateGeometryCommand(
         group.setScaleZ(scale.get(2));
       }
 
-      //      Next: can't see anything! Need to correctly specify face coordinates to
-      // make the triangles visible. I guess we just count off every 3 and set that to
-      // a new face number? We can also specify normals, which is done in svs_viewer (see
-      // calc_normals).
       if (vertices != null) {
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
