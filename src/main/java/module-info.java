@@ -4,6 +4,7 @@ module edu.umich.soar.svsviewer {
   requires jakarta.annotation;
   requires java.desktop;
   requires javafx.swing;
+  requires quickhull3d;
 
   opens edu.umich.soar.svsviewer to
       javafx.fxml;

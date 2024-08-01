@@ -26,7 +26,8 @@ tasks.withType(JavaCompile) {
 
 application {
 	mainModule = 'edu.umich.soar.svsviewer'
-	mainClass = 'edu.umich.soar.svsviewer.SvsViewerApplication'
+//	mainClass = 'edu.umich.soar.svsviewer.SvsViewerApplication'
+	mainClass = 'edu.umich.soar.svsviewer.RectangleViewer'
 }
 
 javafx {
@@ -37,6 +38,8 @@ javafx {
 dependencies {
 	// https://mvnrepository.com/artifact/jakarta.annotation/jakarta.annotation-api
 	implementation group: 'jakarta.annotation', name: 'jakarta.annotation-api', version: '3.0.0'
+
+	implementation group: 'com.github.quickhull3d', name: 'quickhull3d', version: '1.0.0'
 
 	testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")

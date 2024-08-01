@@ -121,9 +121,8 @@ public record UpdateGeometryCommand(
   private TriangleMesh verticesToTriangleMesh(List<Vertex> vertices) {
     //    TODO: NEXT: This is all wrong. We need to compute the convex hull, as that's what's
     // specified with SVS vertices.
-    // do a spike with https://github.com/Quickhull3d/quickhull3d; may also need another library to
-    // triangulate the
-    // faces, as JavaFX's TriangleMesh requires triangles.
+    // do a spike with https://github.com/Quickhull3d/quickhull3d; need to call triangulate() on
+    // result.
     float[] points = new float[vertices.size() * 3];
     int index = 0;
     for (Float f :
