@@ -95,14 +95,17 @@ provider?), which is pulling from Server?
 [ ] screenshot shortcut
 [ ] select which scene (S1, S2, etc.) to display
 [ ] select port to listen on, then create server (also allow command line specification)
+[ ] shift+mouse-drag horizontal to rotate around z-axis
 [ ] select object with mouse or in objects list panel
 
 - [ ] highlight it somehow
 - [ ] show orientation with arrows
 - [ ] show its info in a separate panel
 - [ ] might be able to inspect geometries that have no visualization (only position, rotation, no vertices)
+- [ ] double-click or something to focus camera on object?
+- [ ] notify if object not currently visible (completely obstructed or surrounded)?
+  ideas:
 
-ideas:
 [ ] 1,2,3,4,5,6 shortcuts to view from different faces
 [ ] maybe 1,2,3,4,5,6,7,8 to view from different corners
 [ ] arrow keys move camera to sides

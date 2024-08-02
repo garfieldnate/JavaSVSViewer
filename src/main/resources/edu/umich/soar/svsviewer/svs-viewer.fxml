@@ -8,11 +8,9 @@
            prefHeight="800"
            prefWidth="1400"
            fx:id="rootPane">
-    <Group fx:id="root">
-        <SubScene fx:id="viewerScene" width="1400" height="800" fill="ALICEBLUE" depthBuffer="true">
-            <root>
-                <Group fx:id="contentGroup"/>
-            </root>
-        </SubScene>
-    </Group>
+    <SubScene fx:id="viewerScene" width="1400" height="800" fill="ALICEBLUE" depthBuffer="true">
+        <root>
+            <Group fx:id="contentGroup"/>
+        </root>
+    </SubScene>
 </StackPane>

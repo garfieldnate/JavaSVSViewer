@@ -1,13 +1,20 @@
 package edu.umich.soar.svsviewer;
 
 import edu.umich.soar.svsviewer.command.Command;
-import edu.umich.soar.svsviewer.scene.GeometryManager;
 import edu.umich.soar.svsviewer.parsing.Parser;
 import edu.umich.soar.svsviewer.parsing.Tokenizer;
+import edu.umich.soar.svsviewer.scene.GeometryManager;
 import edu.umich.soar.svsviewer.server.Server;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -22,13 +29,6 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javax.imageio.ImageIO;
-import javafx.embed.swing.SwingFXUtils;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.function.Consumer;
 
 public class SceneController {
   @FXML private StackPane rootPane;
@@ -63,12 +63,19 @@ public class SceneController {
     camera
         .getTransforms()
         .addAll(
-            new Rotate(-20, Rotate.Y_AXIS),
-            new Rotate(-20, Rotate.X_AXIS),
+            //            new Rotate(-20, Rotate.Y_AXIS),
+            //            new Rotate(-20, Rotate.X_AXIS),
             new Translate(0, 0, -15));
 
     // Add camera to scene
     viewerScene.setCamera(camera);
+
+    camera
+        .boundsInParentProperty()
+        .addListener(
+            (observable, oldValue, newValue) ->
+                Event.fireEvent(
+                    viewerScene, new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED)));
 
     // Handle keyboard events
     viewerScene.setOnKeyPressed(
@@ -79,6 +86,8 @@ public class SceneController {
           }
         });
     viewerScene.setFocusTraversable(true);
+
+    viewerScene.addEventFilter(SVSViewerEvent.SCENE_RERENDERED, this::sceneRerendered);
 
     initMouseControls(contentGroup, viewerScene);
 
@@ -158,6 +167,10 @@ public class SceneController {
     Thread th = new Thread(server);
     th.setDaemon(true);
     th.start();
+  }
+
+  public void sceneRerendered(Event event) {
+    System.out.println("TODO: Update labels here");
   }
 
   /** Save an image file showing the current viewer scene */

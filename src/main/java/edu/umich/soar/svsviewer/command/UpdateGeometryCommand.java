@@ -2,9 +2,17 @@ package edu.umich.soar.svsviewer.command;
 
 import com.github.quickhull3d.Point3d;
 import com.github.quickhull3d.QuickHull3D;
+import edu.umich.soar.svsviewer.SVSViewerEvent;
 import edu.umich.soar.svsviewer.SceneController;
 import edu.umich.soar.svsviewer.scene.Geometry;
 import edu.umich.soar.svsviewer.scene.GeometryManager;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import edu.umich.soar.svsviewer.scene.SVSScene;
+import javafx.event.Event;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -12,11 +20,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
 
 public record UpdateGeometryCommand(
     NameMatcher sceneMatcher,
@@ -33,53 +36,49 @@ public record UpdateGeometryCommand(
     Double lineWidth)
     implements Command {
 
-  //  TODO: updating vertices, radius, or text below should clear all existing vertices, radius and
-  // text (see calls to free_geom_shape in svs_viewer)
-
   @Override
   public void interpret(GeometryManager geoManager, SceneController sceneController) {
+    // save unique scenes that are updated to trigger rerendered events on
+    Map<String, SVSScene> rerenderedScenes = new HashMap<>();
     //    TODO: do the work before the loop and then just apply it in the loop (instead of repeating
     // the work in the loop). Might need to copy, though, because another command might modify only
     // part of this list.
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
-      Group group = geometry.getGroup();
-
-      //      TODO: stop displaying these dummy objects!
-      //      Box testBox = new Box(5, 5, 5);
-      //      geometry.getGroup().getChildren().add(testBox);
-      //      TODO: can't see anything. Try out
-      //      TriangleMesh testMesh = new TriangleMesh();
-      //      testMesh.getPoints().setAll(5f, -5f, 5f, -5f, -5f, 5f, -5f, 5f, 5f);
-      //      testMesh.getTexCoords().setAll(1, 1);
-      //      MeshView testMeshView = new MeshView(testMesh);
-      //      testMeshView.setCullFace(CullFace.NONE);
-      //      geometry.getGroup().getChildren().add(testMeshView);
+      Group group = geometry.group();
 
       if (position != null) {
         group.setTranslateX(position.get(0));
         group.setTranslateY(position.get(1));
         group.setTranslateZ(position.get(2));
+        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
       }
       if (rotation != null) {
         rotateWithQuaternion(rotation, group);
+        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
       }
       if (scale != null) {
         group.setScaleX(scale.get(0));
         group.setScaleY(scale.get(1));
         group.setScaleZ(scale.get(2));
+        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
       }
 
       if (vertices != null) {
+        group.getChildren().clear();
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
         meshView.setCullFace(CullFace.NONE);
-        geometry.getGroup().getChildren().add(meshView);
+        geometry.group().getChildren().add(meshView);
+        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
       }
       if (radius != null) {
+        group.getChildren().clear();
         Sphere s = new Sphere(radius);
-        geometry.getGroup().getChildren().add(s);
+        geometry.group().getChildren().add(s);
+        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
       }
       if (text != null) {
+        group.getChildren().clear();
         // svs_viewer calls draw_text(g->text, 0, 0), which would draw at the origin no matter where
         // the geometry is;
         // that seems wrong. I think maybe it was never implemented properly because it's not
@@ -107,13 +106,21 @@ public record UpdateGeometryCommand(
       if (color != null) {
         //        TODO: Soar's SVS doesn't support setting color, even though the viewer supports
         // it. Fix that!
-        for (Node child : geometry.getGroup().getChildren()) {
+        for (Node child : geometry.group().getChildren()) {
           if (child instanceof Shape3D shape) {
             shape.setMaterial(
                 new PhongMaterial(new Color(color.get(0), color.get(1), color.get(2), 1)));
           }
         }
+        // TODO: we're triggering the event so that labels can be re-drawn, which is not necessary
+        // on a color change. Maybe we should have a separate event for "object's label location
+        // moved" or "center moved" or something
+        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
       }
+    }
+    for (SVSScene scene : rerenderedScenes.values()) {
+      Node sceneRoot = scene.root();
+      Event.fireEvent(sceneRoot, new SVSViewerEvent(sceneRoot, SVSViewerEvent.SCENE_RERENDERED));
     }
   }
 
@@ -122,9 +129,9 @@ public record UpdateGeometryCommand(
     Point3d[] points =
         vertices.stream().map(v -> new Point3d(v.x(), v.y(), v.z())).toArray(Point3d[]::new);
 
-    // TODO: draw a point if only one vertex
-    // TODO: draw a line segment if only two vertices
-    // TODO: draw a triangle if only three vertices
+    // TODO: draw a sphere of radius one (a "point") if only one vertex
+    // TODO: draw a line segment if only two vertices (PolyLine3D from FXyz)
+    // TODO: draw a triangle (with TriangleMesh) if only three vertices
     // NOTE: as in svs_viewer, we don't handle polygons besides triangles
     QuickHull3D hull = new QuickHull3D();
     //    TODO: catch IllegalArgumentException, print it and the name of the geometry
@@ -145,15 +152,10 @@ public record UpdateGeometryCommand(
 
     // All 0's; we don't support textures
     float[] dummyTextureCoords = new float[qh3dPoints.length * 2];
-    //    System.out.println("texture coords:");
-    //    System.out.println(Arrays.toString(dummyTextureCoords));
 
     //    System.out.println("Faces:");
     //    [faceIndex][index] = vertexIndex
-    int[][] qh3Dfaces = hull.getFaces(); // CLOCKWISE);
-    //    for (int[] array : qh3Dfaces) {
-    //      System.out.println(Arrays.toString(array));
-    //    }
+    int[][] qh3Dfaces = hull.getFaces();
     // flatten for Triangle Mesh
     int[] jfxFaces = new int[qh3Dfaces.length * 6];
     for (int i = 0; i < qh3Dfaces.length; i++) {
@@ -165,7 +167,6 @@ public record UpdateGeometryCommand(
       jfxFaces[outIndex + 4] = qh3Dfaces[i][2];
       jfxFaces[outIndex + 5] = 0;
     }
-    //    System.out.println(Arrays.toString(jfxFaces));
 
     TriangleMesh mesh = new TriangleMesh();
     mesh.getPoints().setAll(jfxPoints);

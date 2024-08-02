@@ -14,12 +14,7 @@ import java.util.List;
  */
 public class GeometryManager {
 
-  private static class Scene {
-    private final WildcardMap<Group> geometries = new WildcardMap<>();
-    private final Group root = new Group();
-  }
-
-  private final WildcardMap<Scene> scenes = new WildcardMap<>();
+  private final WildcardMap<SVSScene> scenes = new WildcardMap<>();
 
   private final Group contentGroup;
 
@@ -31,12 +26,12 @@ public class GeometryManager {
     scenes.computeIfAbsent(
         sceneName,
         (key) -> {
-          Scene s = new Scene();
+          SVSScene s = new SVSScene(sceneName);
           //    TODO: for now, we are always displaying only the S1 scene. Will probably enable
           // showing
           // different scenes on different tabs or something.
           if (sceneName.equals("S1")) {
-            contentGroup.getChildren().add(s.root);
+            contentGroup.getChildren().add(s.root());
           }
           return s;
         });
@@ -52,10 +47,10 @@ public class GeometryManager {
   }
 
   public void deleteGeometry(NameMatcher sceneMatcher, NameMatcher geometryMatcher) {
-    List<Scene> scenesToDeleteFrom;
+    List<SVSScene> scenesToDeleteFrom;
     switch (sceneMatcher.matchType()) {
       case EXACT -> {
-        Scene scene = scenes.get(sceneMatcher.namePattern());
+        SVSScene scene = scenes.get(sceneMatcher.namePattern());
         if (scene != null) {
           scenesToDeleteFrom = Collections.singletonList(scene);
         } else {
@@ -74,10 +69,10 @@ public class GeometryManager {
 
     switch (geometryMatcher.matchType()) {
       case EXACT ->
-          scenesToDeleteFrom.forEach(s -> s.geometries.remove(geometryMatcher.namePattern()));
+          scenesToDeleteFrom.forEach(s -> s.geometries().remove(geometryMatcher.namePattern()));
       case WILDCARD ->
           scenesToDeleteFrom.forEach(
-              s -> s.geometries.removeWithWildcards(geometryMatcher.namePattern()));
+              s -> s.geometries().removeWithWildcards(geometryMatcher.namePattern()));
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
     }
@@ -89,10 +84,10 @@ public class GeometryManager {
   // find scene by match exact/wildcard
   // find geometries by scene/geometry matchers
   public List<Geometry> findGeometries(NameMatcher sceneMatcher, NameMatcher geometryMatcher) {
-    List<Scene> scenesToSearch;
+    List<SVSScene> scenesToSearch;
     switch (sceneMatcher.matchType()) {
       case EXACT -> {
-        Scene scene = scenes.get(sceneMatcher.namePattern());
+        SVSScene scene = scenes.get(sceneMatcher.namePattern());
         if (scene != null) {
           scenesToSearch = Collections.singletonList(scene);
         } else {
@@ -109,20 +104,20 @@ public class GeometryManager {
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
     }
 
-    List<Group> matchedGeometries = new ArrayList<>();
+    List<Geometry> matchedGeometries = new ArrayList<>();
     switch (geometryMatcher.matchType()) {
       case EXACT ->
           scenesToSearch.forEach(
               s -> {
-                Group geometry = s.geometries.get(geometryMatcher.namePattern());
+                Geometry geometry = s.geometries().get(geometryMatcher.namePattern());
                 if (geometry != null) {
-                  matchedGeometries.add(s.geometries.get(geometryMatcher.namePattern()));
+                  matchedGeometries.add(s.geometries().get(geometryMatcher.namePattern()));
                 }
               });
       case WILDCARD ->
           scenesToSearch.forEach(
               s ->
-                  s.geometries
+                  s.geometries()
                       .getWithWildcards(geometryMatcher.namePattern())
                       .forEach(
                           entry -> {
@@ -132,15 +127,14 @@ public class GeometryManager {
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
     }
 
-    //    TODO: converting to Geometries here is dumb; should be using them internally, if at all.
-    return matchedGeometries.stream().map(Geometry::new).toList();
+    return matchedGeometries;
   }
 
   public void addGeometry(NameMatcher sceneMatcher, String geometryName) {
-    List<Scene> scenesToUpdate;
+    List<SVSScene> scenesToUpdate;
     switch (sceneMatcher.matchType()) {
       case EXACT -> {
-        Scene scene = scenes.get(sceneMatcher.namePattern());
+        SVSScene scene = scenes.get(sceneMatcher.namePattern());
         if (scene != null) {
           scenesToUpdate = Collections.singletonList(scene);
         } else {
@@ -156,15 +150,16 @@ public class GeometryManager {
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
     }
-    for (Scene s : scenesToUpdate) {
+    for (SVSScene s : scenesToUpdate) {
       // TODO: is it correct to create new geometries only if they don't exist already?
-      s.geometries.computeIfAbsent(
-          geometryName,
-          n -> {
-            Group group = new Group();
-            s.root.getChildren().add(group);
-            return group;
-          });
+      s.geometries()
+          .computeIfAbsent(
+              geometryName,
+              n -> {
+                Group group = new Group();
+                s.root().getChildren().add(group);
+                return new Geometry(s, group);
+              });
     }
   }
 }
