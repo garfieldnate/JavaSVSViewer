@@ -26,28 +26,31 @@ public class Server extends Task<Void> {
     server.run();
   }
 
+  /**
+   * Continually waits for a connection to {@link #portNumber}.
+   *
+   * @return
+   */
   @Override
   protected Void call() {
-    try (ServerSocket serverSocket = new ServerSocket(portNumber);
-        Socket clientSocket = serverSocket.accept();
-        // TODO: use BufferedWriter instead so that exceptions aren't swallowed
-        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-        BufferedReader in =
-            new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); ) {
-      System.out.println("Connection established");
-      String inputLine;
+    while (true) {
+      System.out.println("Listening on port " + portNumber + " for a connection...");
+      try (ServerSocket serverSocket = new ServerSocket(portNumber);
+          Socket clientSocket = serverSocket.accept();
+          // TODO: use BufferedWriter instead so that exceptions aren't swallowed
+          PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+          BufferedReader in =
+              new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); ) {
+        System.out.println("Connection established");
+        String inputLine;
 
-      while (!isCancelled() && (inputLine = in.readLine()) != null) {
-        inputProcessor.accept(inputLine);
-        out.println("Received: " + inputLine);
+        while (!isCancelled() && (inputLine = in.readLine()) != null) {
+          inputProcessor.accept(inputLine);
+          out.println("Received: " + inputLine);
+        }
+      } catch (IOException e) {
+        System.out.println(e.getMessage());
       }
-    } catch (IOException e) {
-      System.out.println(
-          "Exception caught when trying to listen on port "
-              + portNumber
-              + " or listening for a connection");
-      System.out.println(e.getMessage());
     }
-    return null;
   }
 }
