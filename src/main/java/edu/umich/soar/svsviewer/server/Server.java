@@ -1,20 +1,25 @@
-package edu.umich.soar.svsviewer;
+package edu.umich.soar.svsviewer.server;
 
-import javafx.concurrent.Task;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+import javafx.concurrent.Task;
 
 public class Server extends Task<Void> {
 
   private final int portNumber;
 
   private final Consumer<String> inputProcessor;
+
+  @FunctionalInterface
+  public interface ConnectionListener {
+    void run();
+  }
+
+  private final List<ConnectionListener> onConnectedListeners = new ArrayList<>();
 
   public Server(int portNumber, Consumer<String> inputProcessor) {
     this.portNumber = portNumber;
@@ -42,6 +47,9 @@ public class Server extends Task<Void> {
           BufferedReader in =
               new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); ) {
         System.out.println("Connection established");
+        for (ConnectionListener l : onConnectedListeners) {
+          l.run();
+        }
         String inputLine;
 
         while (!isCancelled() && (inputLine = in.readLine()) != null) {
@@ -50,7 +58,13 @@ public class Server extends Task<Void> {
         }
       } catch (IOException e) {
         System.out.println(e.getMessage());
+      } finally {
+        System.out.println("Server connection ended");
       }
     }
+  }
+
+  public void onConnected(ConnectionListener listener) {
+    onConnectedListeners.add(listener);
   }
 }

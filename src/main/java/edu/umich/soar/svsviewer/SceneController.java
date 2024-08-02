@@ -4,17 +4,21 @@ import edu.umich.soar.svsviewer.command.Command;
 import edu.umich.soar.svsviewer.scene.GeometryManager;
 import edu.umich.soar.svsviewer.parsing.Parser;
 import edu.umich.soar.svsviewer.parsing.Tokenizer;
+import edu.umich.soar.svsviewer.server.Server;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.SubScene;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javax.imageio.ImageIO;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class SceneController {
+  @FXML private StackPane rootPane;
   @FXML private Group contentGroup;
   @FXML private SubScene viewerScene;
 
@@ -39,6 +44,8 @@ public class SceneController {
 
   private final DoubleProperty angleX = new SimpleDoubleProperty(0);
   private final DoubleProperty angleY = new SimpleDoubleProperty(0);
+
+  private Text connectionStatusText;
 
   private static int screenshotCounter = 0;
 
@@ -99,10 +106,7 @@ public class SceneController {
           }
         };
 
-    server = new Server(12122, inputProcessor);
-    Thread th = new Thread(server);
-    th.setDaemon(true);
-    th.start();
+    initServer(inputProcessor);
   }
 
   private void initMouseControls(Group group, SubScene scene) {
@@ -127,6 +131,33 @@ public class SceneController {
           angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
           angleY.set(anchorAngleY - (anchorX - event.getSceneX()));
         });
+  }
+
+  private void initServer(Consumer<String> inputProcessor) {
+    // While the server is not connected, show a simple status/instruction message
+    // at the center of the screen
+    Text connectionStatusText =
+        new Text("Waiting for connection at port 12122.\nConnect from Soar with:");
+    connectionStatusText.setFont(new Font("Georgia", 30));
+    connectionStatusText.setTextAlignment(TextAlignment.CENTER);
+    Text connectionInstructionText = new Text("svs connect_viewer 12122");
+    connectionInstructionText.setFont(new Font("Courier New", 30));
+    connectionInstructionText.setTextAlignment(TextAlignment.CENTER);
+
+    VBox vbox = new VBox(connectionStatusText, connectionInstructionText);
+    vbox.setAlignment(Pos.CENTER);
+    // The parent StackPane always tries to resize its contents to fit the whole pane, so we
+    // wrap in a Group because they always shrink to their contents and are not resizable.
+    Group group = new Group(vbox);
+    StackPane.setAlignment(group, Pos.CENTER);
+
+    rootPane.getChildren().add(group);
+
+    server = new Server(12122, inputProcessor);
+    server.onConnected(() -> group.setVisible(false));
+    Thread th = new Thread(server);
+    th.setDaemon(true);
+    th.start();
   }
 
   /** Save an image file showing the current viewer scene */

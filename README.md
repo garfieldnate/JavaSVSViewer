@@ -11,8 +11,7 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
-- fix geometry removal
-- message saying "waiting for connection at port 12122; connect from Soar with `svs connect_viewer 12122`."
+- fix geometry removal?
 - cross-platform distributables building in CI
 - display labels
 - display axes

@@ -19,4 +19,9 @@ module edu.umich.soar.svsviewer {
 
   opens edu.umich.soar.svsviewer.scene to
       javafx.fxml;
+
+  exports edu.umich.soar.svsviewer.server;
+
+  opens edu.umich.soar.svsviewer.server to
+      javafx.fxml;
 }

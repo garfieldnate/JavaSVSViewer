@@ -2,11 +2,12 @@
 
 <?import javafx.scene.Group?>
 <?import javafx.scene.SubScene?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="edu.umich.soar.svsviewer.SceneController"
-            prefHeight="800"
-            prefWidth="1400">
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="edu.umich.soar.svsviewer.SceneController"
+           prefHeight="800"
+           prefWidth="1400"
+           fx:id="rootPane">
     <Group fx:id="root">
         <SubScene fx:id="viewerScene" width="1400" height="800" fill="ALICEBLUE" depthBuffer="true">
             <root>
@@ -14,4 +15,4 @@
             </root>
         </SubScene>
     </Group>
-</AnchorPane>
+</StackPane>
