@@ -253,6 +253,9 @@ public class Parser {
                 "Unknown geometry argument " + cursor.getCurrentToken(), cursor.commandTokens);
       }
     }
+
+    validate(cursor, vertices, radius, text);
+
     return new UpdateGeometryCommand(
         sceneMatcher,
         geometryMatcher,
@@ -265,6 +268,27 @@ public class Parser {
         text,
         layer,
         lineWidth);
+  }
+
+  private static void validate(
+      Cursor cursor, List<UpdateGeometryCommand.Vertex> vertices, Double radius, String text)
+      throws ParsingException {
+    List<String> defined = new ArrayList<>();
+    if (vertices != null) {
+      defined.add("vertices");
+    }
+    if (radius != null) {
+      defined.add("radius");
+    }
+    if (text != null) {
+      defined.add("text");
+    }
+    if (defined.size() > 1) {
+      throw new ParsingException(
+          "Only one of vertices, radius or text can be defined in an update command. Found: "
+              + defined,
+          cursor.commandTokens);
+    }
   }
 
   /** Parse list of doubles of at least length 1 */

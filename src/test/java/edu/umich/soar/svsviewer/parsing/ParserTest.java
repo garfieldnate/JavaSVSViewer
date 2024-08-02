@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParserTest {
@@ -185,5 +186,16 @@ class ParserTest {
                 4.2));
 
     assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testOnlyOneShapeUpdateAllowed() throws ParsingException {
+    String s = "S1 foo v 0.5 0.5 0.5 b 1.0 t hello";
+
+    ParsingException exception =
+        assertThrows(ParsingException.class, () -> Parser.parse(List.of(s.split("\\s+"))));
+    assertThat(exception.getMessage())
+        .contains(
+            "Only one of vertices, radius or text can be defined in an update command. Found: [vertices, radius, text]");
   }
 }
