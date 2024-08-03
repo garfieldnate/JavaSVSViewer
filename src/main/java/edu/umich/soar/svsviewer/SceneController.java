@@ -147,8 +147,9 @@ public class SceneController {
     // at the center of the screen
     Text connectionStatusText =
         new Text("Waiting for connection at port 12122.\nConnect from Soar with:");
-    connectionStatusText.setFont(new Font("Georgia", 30));
+    connectionStatusText.setFont(new Font("Helvetica", 30));
     connectionStatusText.setTextAlignment(TextAlignment.CENTER);
+    connectionStatusText.setLineSpacing(6);
     Text connectionInstructionText = new Text("svs connect_viewer 12122");
     connectionInstructionText.setFont(new Font("Courier New", 30));
     connectionInstructionText.setTextAlignment(TextAlignment.CENTER);
