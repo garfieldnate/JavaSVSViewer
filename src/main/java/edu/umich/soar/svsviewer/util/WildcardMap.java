@@ -1,6 +1,7 @@
 package edu.umich.soar.svsviewer.util;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Map with string keys that also supports wildcard searching; {@code *} matches 0 or more
@@ -171,16 +172,33 @@ public class WildcardMap<T> implements Map<String, T> {
 
   @Override
   public Set<String> keySet() {
-    throw new UnsupportedOperationException();
+    return entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toSet());
   }
 
   @Override
   public Collection<T> values() {
-    throw new UnsupportedOperationException();
+    return entrySet().stream().map(Map.Entry::getValue).toList();
   }
 
   @Override
   public Set<Map.Entry<String, T>> entrySet() {
-    throw new UnsupportedOperationException();
+    Set<Map.Entry<String, T>> entries = new HashSet<>();
+    collectEntries(root, "", entries);
+    return entries;
+  }
+
+  private void collectEntries(Node<T> node, String currentKey, Set<Map.Entry<String, T>> entries) {
+    if (node == null) {
+      return;
+    }
+    if (node.value != null) {
+      entries.add(new AbstractMap.SimpleEntry<>(currentKey, node.value));
+    }
+    for (Map.Entry<Character, Node<T>> child :
+        node.children.entrySet()) { // Assuming 'children' is a map of child nodes
+      char nextChar = child.getKey();
+      Node<T> nextNode = child.getValue();
+      collectEntries(nextNode, currentKey + nextChar, entries);
+    }
   }
 }

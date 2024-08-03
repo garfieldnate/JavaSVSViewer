@@ -7,12 +7,15 @@ A Java FX 3D-based rewrite of the SVS viewer.
 Scene in SVS vs JavaFX
 Geometry in SVS (might not be visible, has color, text, etc.)
 
+## Installing
+
+* Standalone applications built via jpackage in CI
+* For Mac, I notice that the .pkg works but the .dmg does not
+
 ## Progress
 
 NEXT: prioritize features likely needed for preview release
 
-- fix geometry removal?
-- cross-platform distributables building in CI
 - display labels
 - display axes
 - wireframe

@@ -1,5 +1,6 @@
 package edu.umich.soar.svsviewer.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
@@ -121,5 +122,24 @@ public class WildcardMapTest {
 
     assertEquals(3, numRemoved, "Expected 3 entries to be removed");
     assertEquals(0, map.size(), "Expected map to be empty");
+  }
+
+  @Test
+  public void testEntrySet() {
+    Map<String, String> hashMap = new HashMap<>();
+    hashMap.put("name", "Amy");
+    hashMap.put("nate", "Nate");
+    hashMap.put("na*e", "Star");
+    hashMap.put("hello", "world");
+    hashMap.put("123", "456");
+
+    WildcardMap<String> wildcardMap = new WildcardMap<>();
+    wildcardMap.putAll(hashMap);
+
+    Set<Map.Entry<String, String>> expectedEntries = hashMap.entrySet();
+    Set<Map.Entry<String, String>> actualEntries = wildcardMap.entrySet();
+
+    assertEquals(expectedEntries.size(), actualEntries.size(), "Expected entrySet size to be 3");
+    assertThat(actualEntries).hasSameElementsAs(expectedEntries);
   }
 }
