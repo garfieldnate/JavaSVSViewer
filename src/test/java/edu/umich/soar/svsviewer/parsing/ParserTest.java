@@ -158,9 +158,9 @@ class ParserTest {
   }
 
   @Test
-  public void testUpdateGeometry() throws ParsingException {
+  public void testUpdateGeometryVertices() throws ParsingException {
     String s =
-        "S1 foo v 0.5 0.5 0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 -0.5 -0.5 0.5 0.5 -0.5 0.5 -0.5 -0.5 -0.5 0.5 -0.5 -0.5 -0.5   p -0.465155 0.475745 1.15673 r 0 0 0 1  s 0.106014 0.106025 0.11345 c 1 2 3 b 3.4 t foo l 2 w 4.2";
+        "S1 foo v 0.5 0.5 0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 -0.5 -0.5 0.5 0.5 -0.5 0.5 -0.5 -0.5 -0.5 0.5 -0.5 -0.5 -0.5   p -0.465155 0.475745 1.15673 r 0 0 0 1  s 0.106014 0.106025 0.11345 c 1 2 3 l 2 w 4.2";
     List<Command> actual = Parser.parse(List.of(s.split("\\s+")));
     List<Command> expected =
         List.of(
@@ -180,7 +180,53 @@ class ParserTest {
                     new Vertex(-0.5, 0.5, -0.5),
                     new Vertex(-0.5, -0.5, 0.5),
                     new Vertex(-0.5, -0.5, -0.5)),
+                null,
+                null,
+                2,
+                4.2));
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testUpdateGeometryRadius() throws ParsingException {
+    String s =
+        "S1 foo p -0.465155 0.475745 1.15673 r 0 0 0 1  s 0.106014 0.106025 0.11345 c 1 2 3 b 3.4 l 2 w 4.2";
+    List<Command> actual = Parser.parse(List.of(s.split("\\s+")));
+    List<Command> expected =
+        List.of(
+            new UpdateGeometryCommand(
+                new NameMatcher("S1", NameMatcher.NameMatchType.WILDCARD),
+                new NameMatcher("foo", NameMatcher.NameMatchType.WILDCARD),
+                List.of(-0.465155, 0.475745, 1.15673),
+                List.of(0.0, 0.0, 0.0, 1.0),
+                List.of(0.106014, 0.106025, 0.11345),
+                List.of(1d, 2d, 3d),
+                null,
                 3.4,
+                null,
+                2,
+                4.2));
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testUpdateGeometryText() throws ParsingException {
+    String s =
+        "S1 foo   p -0.465155 0.475745 1.15673 r 0 0 0 1  s 0.106014 0.106025 0.11345 c 1 2 3 l 2 w 4.2 t foo";
+    List<Command> actual = Parser.parse(List.of(s.split("\\s+")));
+    List<Command> expected =
+        List.of(
+            new UpdateGeometryCommand(
+                new NameMatcher("S1", NameMatcher.NameMatchType.WILDCARD),
+                new NameMatcher("foo", NameMatcher.NameMatchType.WILDCARD),
+                List.of(-0.465155, 0.475745, 1.15673),
+                List.of(0.0, 0.0, 0.0, 1.0),
+                List.of(0.106014, 0.106025, 0.11345),
+                List.of(1d, 2d, 3d),
+                null,
+                null,
                 "foo",
                 2,
                 4.2));
