@@ -13,14 +13,17 @@ repositories {
 	mavenCentral()
 }
 
+// No need to target a lower version, since we distribute a standalone application
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
 ext {
 	junitVersion = '5.9.2'
 }
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
-
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
 }
 
@@ -31,7 +34,7 @@ application {
 }
 
 javafx {
-	version = '17.0.6'
+	version = '21.0.4'
 	modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing']
 }
 
