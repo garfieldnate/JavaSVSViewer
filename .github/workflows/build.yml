@@ -41,5 +41,5 @@ jobs:
                 if: success()  # Only runs if the previous steps were successful
                 uses: actions/upload-artifact@v2
                 with:
-                    name: build-artifacts
+                    name: build-artifacts-${{ matrix.os }}
                     path: build/jpackage/*
