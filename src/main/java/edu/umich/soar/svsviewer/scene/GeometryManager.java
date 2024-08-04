@@ -185,7 +185,7 @@ public class GeometryManager {
   }
 
   public void updateLabelPositions() {
-    System.out.println("Updating label positions...");
+    //    System.out.println("Updating label positions...");
     // TODO: should be done only for the updated scene
     scenes
         .values()
@@ -201,12 +201,12 @@ public class GeometryManager {
                           Point2D screenLocation = geometry.getGroup().localToScreen(0, 0, 0);
                           Point2D paneLocation = labelsPane.screenToLocal(screenLocation);
                           Node label = geometry.getLabel();
-                          System.out.println(
-                              geometry.getName()
-                                  + " label XY: "
-                                  + paneLocation.getX()
-                                  + ","
-                                  + paneLocation.getY());
+                          //                          System.out.println(
+                          //                              geometry.getName()
+                          //                                  + " label XY: "
+                          //                                  + paneLocation.getX()
+                          //                                  + ","
+                          //                                  + paneLocation.getY());
                           label.setLayoutX(paneLocation.getX());
                           label.setLayoutY(paneLocation.getY());
                         }));

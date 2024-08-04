@@ -118,11 +118,12 @@ public class SceneController {
 
     Consumer<String> inputProcessor =
         (String line) -> {
-          System.out.println(line);
           List<String> tokens = Tokenizer.tokenizeCommand(line);
           if (tokens.isEmpty()) {
+            System.err.println("No tokens found in line: " + line);
             return;
           }
+          System.out.println("COMMAND: " + line);
           List<Command> parsed;
           try {
             parsed = Parser.parse(tokens);
