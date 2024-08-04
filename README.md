@@ -16,13 +16,18 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
-- labels show even when scene is behind camera
 - make shortcuts discoverable; perhaps a simple help menu that can display a dialog with instructions
 	- demo video/gif?
 	- long-term I'd want menu items for the various actions with their shortcuts listed. Isn't there a way to register
 	  those on Mac? Because cheatsheet can look them up somehow.
+- camera translation
+- camera rotation
+- z-axis rotation
 - display axes
-- wireframe
+
+## Bugs
+
+- labels show even when nodes are behind camera
 
 ### Design
 
@@ -76,11 +81,8 @@ provider?), which is pulling from Server?
 
 [X] meshes from SVS
 [X] spheres from SVS
-[ ] labels from SVS
-
-- https://stackoverflow.com/questions/46011515/static-2d-text-over-3d-scene-in-javafx-java
-- screen coords for drawing text: `geometry.getGroup().localToScreen(0,0,0)`
-  [ ] grid lines
+[X] labels from SVS
+[ ] grid lines
 
 ### List Display
 

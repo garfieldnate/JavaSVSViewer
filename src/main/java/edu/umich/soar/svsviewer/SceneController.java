@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -24,6 +23,7 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.SubScene;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
+import javafx.scene.shape.DrawMode;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -38,6 +38,8 @@ public class SceneController {
 
   private Server server;
 
+  private GeometryManager geometryManager;
+
   double anchorX;
   double anchorY;
   double anchorAngleX;
@@ -50,6 +52,8 @@ public class SceneController {
 
   private boolean geoLabelsHidden = false;
   private static final String GEO_LABELS_OFF_CLASS = "geo-labels-off";
+
+  private DrawMode drawMode = DrawMode.FILL;
 
   @FXML
   public void initialize() {
@@ -90,16 +94,8 @@ public class SceneController {
           switch (event.getCode()) {
             case W -> camera.translateZProperty().set(camera.getTranslateZ() - 10);
             case S -> camera.translateZProperty().set(camera.getTranslateZ() + 10);
-            case L -> {
-              geoLabelsHidden = !geoLabelsHidden;
-              if (geoLabelsHidden) {
-                //                System.out.println("Hiding labels...");
-                rootPane.getStyleClass().add(GEO_LABELS_OFF_CLASS);
-              } else {
-                //                System.out.println("Showing labels");
-                rootPane.getStyleClass().remove(GEO_LABELS_OFF_CLASS);
-              }
-            }
+            case L -> toggleSceneLabels();
+            case M -> toggleSceneDrawMode();
           }
         });
     viewerScene.setFocusTraversable(true);
@@ -115,7 +111,7 @@ public class SceneController {
                             viewerScene,
                             new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
 
-    GeometryManager geometryManager = new GeometryManager(rootPane, contentGroup);
+    this.geometryManager = new GeometryManager(rootPane, contentGroup);
     viewerScene.addEventFilter(
         SVSViewerEvent.SCENE_RERENDERED, e -> geometryManager.updateLabelPositions());
 
@@ -143,6 +139,26 @@ public class SceneController {
         };
 
     initServer(inputProcessor);
+  }
+
+  private void toggleSceneLabels() {
+    geoLabelsHidden = !geoLabelsHidden;
+    if (geoLabelsHidden) {
+      //                System.out.println("Hiding labels...");
+      rootPane.getStyleClass().add(GEO_LABELS_OFF_CLASS);
+    } else {
+      //                System.out.println("Showing labels");
+      rootPane.getStyleClass().remove(GEO_LABELS_OFF_CLASS);
+    }
+  }
+
+  private void toggleSceneDrawMode() {
+    if (drawMode == DrawMode.FILL) {
+      drawMode = DrawMode.LINE;
+    } else {
+      drawMode = DrawMode.FILL;
+    }
+    geometryManager.setDrawMode(drawMode);
   }
 
   private void initMouseControls(Group group, SubScene scene) {

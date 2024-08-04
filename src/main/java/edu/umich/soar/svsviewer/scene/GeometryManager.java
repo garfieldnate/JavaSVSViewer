@@ -8,6 +8,8 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.DrawMode;
+import javafx.scene.shape.Shape3D;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -208,5 +210,31 @@ public class GeometryManager {
                           label.setLayoutX(paneLocation.getX());
                           label.setLayoutY(paneLocation.getY());
                         }));
+  }
+
+  public void setDrawMode(DrawMode mode) {
+    // TODO: just set for one scene
+    scenes
+        .values()
+        .forEach(
+            scene ->
+                scene
+                    .geometries()
+                    .values()
+                    .forEach(
+                        geometry -> {
+                          setDrawModeRecursive(geometry.getGroup(), mode);
+                        }));
+  }
+
+  private static void setDrawModeRecursive(Node node, DrawMode mode) {
+    if (node instanceof Shape3D) {
+      ((Shape3D) node).setDrawMode(mode);
+    }
+    if (node instanceof Group) {
+      for (Node child : ((Group) node).getChildren()) {
+        setDrawModeRecursive(child, mode);
+      }
+    }
   }
 }
