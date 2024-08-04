@@ -1,8 +1,10 @@
 package edu.umich.soar.svsviewer;
 
 import javafx.application.Application;
+import javafx.beans.NamedArg;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -15,6 +17,7 @@ public class SvsViewerApplication extends Application {
         new FXMLLoader(SvsViewerApplication.class.getResource("svs-viewer.fxml"));
     Scene scene = new Scene(fxmlLoader.load());
     primaryStage.setTitle("SVS Viewer");
+    //    Scene scene = new Scene(fxmlLoader.load(), -1, -1, false, SceneAntialiasing.BALANCED);
     primaryStage.setScene(scene);
     primaryStage.show();
   }

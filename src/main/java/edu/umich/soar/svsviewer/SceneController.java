@@ -92,10 +92,11 @@ public class SceneController {
     viewerScene.setOnKeyPressed(
         event -> {
           switch (event.getCode()) {
-            case W -> camera.translateZProperty().set(camera.getTranslateZ() - 10);
-            case S -> camera.translateZProperty().set(camera.getTranslateZ() + 10);
+            case UP -> camera.translateZProperty().set(camera.getTranslateZ() - 10);
+            case DOWN -> camera.translateZProperty().set(camera.getTranslateZ() + 10);
             case L -> toggleSceneLabels();
             case M -> toggleSceneDrawMode();
+            case S -> saveScreenshot();
           }
         });
     viewerScene.setFocusTraversable(true);
@@ -216,11 +217,12 @@ public class SceneController {
   /** Save an image file showing the current viewer scene */
   public void saveScreenshot() {
     File outputFile = getScreenshotFile();
-    WritableImage image = viewerScene.snapshot(new SnapshotParameters(), null);
+    WritableImage image = rootPane.snapshot(new SnapshotParameters(), null);
     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
 
     try {
       ImageIO.write(bufferedImage, "png", outputFile);
+      System.out.println("Saved screenshot to " + outputFile.getAbsolutePath());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -243,7 +245,7 @@ public class SceneController {
 
     File outputFile;
     do {
-      outputFile = new File(baseFileName + suffix + extension);
+      outputFile = new File(baseFileName + suffix + "." + extension);
       screenshotCounter++;
       suffix = Integer.toString(screenshotCounter);
     } while (outputFile.exists());
