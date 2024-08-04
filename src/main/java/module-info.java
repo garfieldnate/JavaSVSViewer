@@ -5,6 +5,7 @@ module edu.umich.soar.svsviewer {
   requires java.desktop;
   requires javafx.swing;
   requires quickhull3d;
+  requires org.fxyz3d.core;
 
   opens edu.umich.soar.svsviewer to
       javafx.fxml;

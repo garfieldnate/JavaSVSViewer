@@ -16,13 +16,12 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
-import javafx.scene.PerspectiveCamera;
-import javafx.scene.SnapshotParameters;
-import javafx.scene.SubScene;
+import javafx.scene.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -33,7 +32,8 @@ import javax.imageio.ImageIO;
 
 public class SceneController {
   @FXML private Pane rootPane;
-  @FXML private Group contentGroup;
+  @FXML private Group rootGroup;
+  @FXML private Group shapeGroup;
   @FXML private SubScene viewerScene;
 
   private Server server;
@@ -54,6 +54,7 @@ public class SceneController {
   private static final String GEO_LABELS_OFF_CLASS = "geo-labels-off";
 
   private DrawMode drawMode = DrawMode.FILL;
+  private Node axes;
 
   @FXML
   public void initialize() {
@@ -64,7 +65,7 @@ public class SceneController {
     // location is off. For now we just rotate the scene here to make FloorPlan1
     // appear nice by default. Probably need to display axes first to figure out the
     // correct answer.
-    contentGroup.getTransforms().add(new Rotate(90, Rotate.X_AXIS));
+    rootGroup.getTransforms().add(new Rotate(90, Rotate.X_AXIS));
 
     // Create and position camera
     PerspectiveCamera camera = new PerspectiveCamera(true);
@@ -92,17 +93,18 @@ public class SceneController {
     viewerScene.setOnKeyPressed(
         event -> {
           switch (event.getCode()) {
-            case UP -> camera.translateZProperty().set(camera.getTranslateZ() - 10);
-            case DOWN -> camera.translateZProperty().set(camera.getTranslateZ() + 10);
+            case UP -> camera.translateZProperty().set(camera.getTranslateZ() + .1);
+            case DOWN -> camera.translateZProperty().set(camera.getTranslateZ() - .1);
             case L -> toggleSceneLabels();
             case M -> toggleSceneDrawMode();
             case S -> saveScreenshot();
+            case G -> axes.setVisible(!axes.isVisible());
           }
         });
     viewerScene.setFocusTraversable(true);
 
-    initMouseControls(contentGroup, viewerScene);
-    contentGroup
+    initMouseControls(shapeGroup, viewerScene);
+    rootGroup
         .boundsInParentProperty()
         .addListener(
             (observable, oldValue, newValue) ->
@@ -112,7 +114,7 @@ public class SceneController {
                             viewerScene,
                             new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
 
-    this.geometryManager = new GeometryManager(rootPane, contentGroup);
+    this.geometryManager = new GeometryManager(rootPane, shapeGroup);
     viewerScene.addEventFilter(
         SVSViewerEvent.SCENE_RERENDERED, e -> geometryManager.updateLabelPositions());
 
@@ -141,6 +143,19 @@ public class SceneController {
         };
 
     initServer(inputProcessor);
+    axes = new Axes3DBuilder().build();
+    axes.setVisible(false);
+    shapeGroup.getChildren().add(axes);
+
+    //    TODO: factor out or put in constants or something
+    AmbientLight globalAmbientLight = new AmbientLight(Color.color(.4, .4, .4));
+    rootGroup.getChildren().add(globalAmbientLight);
+
+    PointLight pointLight1 = new PointLight(Color.color(.4, .4, .4));
+    pointLight1.setTranslateX(100); // Position the light source
+    pointLight1.setTranslateY(100);
+    pointLight1.setTranslateZ(100);
+    rootGroup.getChildren().add(pointLight1);
   }
 
   private void toggleSceneLabels() {

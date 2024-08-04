@@ -68,7 +68,27 @@ public record UpdateGeometryCommand(
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
         meshView.setCullFace(CullFace.NONE);
+        //        TODO: put in constants
+        PhongMaterial shinyMaterial = new PhongMaterial(Color.ALICEBLUE);
+        shinyMaterial.setSpecularColor(Color.WHITE); // Set the color of the specular
+        //         highlights
+        shinyMaterial.setSpecularPower(100.0); // Increase the specular power to make it
+        // shinier
+        meshView.setMaterial(shinyMaterial);
+
         geometry.getGroup().getChildren().add(meshView);
+
+        //        TODO: make this experiment into a feature. It shows shapes in high-contrast
+        // with line outlines + fill, almost cel-shaded. Need to be able to toggle visibility
+        // because when we toggle draw mode right now the fill turns solid black.
+        //        MeshView meshView2 = new MeshView(mesh);
+        //        meshView2.setCullFace(CullFace.NONE);
+        //        meshView2.setDrawMode(DrawMode.LINE);
+        //        PhongMaterial outlineMaterial = new PhongMaterial(Color.BLACK);
+        //        meshView2.setMaterial(outlineMaterial);
+        //        geometry.getGroup().getChildren().add(meshView2);
+        //        meshView2.setVisible(false);
+
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (radius != null) {

@@ -18,7 +18,9 @@
               fill="ALICEBLUE"
               depthBuffer="true">
         <root>
-            <Group fx:id="contentGroup"/>
+            <Group fx:id="rootGroup">
+                <Group fx:id="shapeGroup"/>
+            </Group>
         </root>
         <antiAliasing>
             <SceneAntialiasing fx:constant="BALANCED"/>
