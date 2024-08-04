@@ -16,7 +16,7 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
-- toggle label display (CSS property?)
+- labels show even when scene is behind camera
 - make shortcuts discoverable; perhaps a simple help menu that can display a dialog with instructions
 	- demo video/gif?
 	- long-term I'd want menu items for the various actions with their shortcuts listed. Isn't there a way to register
@@ -112,6 +112,7 @@ provider?), which is pulling from Server?
 - [ ] double-click or something to focus camera on object?
 - [ ] notify if object not currently visible (completely obstructed or surrounded)?
   ideas:
+- [ ] change camera to FPV from object? (would probably suffice to show viewing direction of robot)
 
 [ ] 1,2,3,4,5,6 shortcuts to view from different faces
 [ ] maybe 1,2,3,4,5,6,7,8 to view from different corners

@@ -25,6 +25,7 @@ public class Geometry {
     // black text on white background for readability
     label.setStyle(
         "-fx-background-color: white; -fx-font-weight: bold; -fx-font-family: 'Helvetica'");
+    label.getStyleClass().add("geometry-label");
   }
 
   public Group getGroup() {

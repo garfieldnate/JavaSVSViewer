@@ -1,0 +1,9 @@
+/* Initially all geometry labels are shown */
+.geometry-label {
+    -fx-opacity: 1;
+}
+
+/* Apply this class to hide all of the contained geometry labels labels */
+.geo-labels-off .geometry-label {
+    -fx-opacity: 0;
+}

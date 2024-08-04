@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -45,13 +46,16 @@ public class SceneController {
   private final DoubleProperty angleX = new SimpleDoubleProperty(0);
   private final DoubleProperty angleY = new SimpleDoubleProperty(0);
 
-  private Text connectionStatusText;
-
   private static int screenshotCounter = 0;
+
+  private boolean geoLabelsHidden = false;
+  private static final String GEO_LABELS_OFF_CLASS = "geo-labels-off";
 
   @FXML
   public void initialize() {
-
+    //    rootPane
+    //        .getStylesheets()
+    //        .add(Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm());
     //    TODO: Either SVS and JavaFX have different ideas of axes, or the camera
     // location is off. For now we just rotate the scene here to make FloorPlan1
     // appear nice by default. Probably need to display axes first to figure out the
@@ -86,6 +90,16 @@ public class SceneController {
           switch (event.getCode()) {
             case W -> camera.translateZProperty().set(camera.getTranslateZ() - 10);
             case S -> camera.translateZProperty().set(camera.getTranslateZ() + 10);
+            case L -> {
+              geoLabelsHidden = !geoLabelsHidden;
+              if (geoLabelsHidden) {
+                //                System.out.println("Hiding labels...");
+                rootPane.getStyleClass().add(GEO_LABELS_OFF_CLASS);
+              } else {
+                //                System.out.println("Showing labels");
+                rootPane.getStyleClass().remove(GEO_LABELS_OFF_CLASS);
+              }
+            }
           }
         });
     viewerScene.setFocusTraversable(true);
