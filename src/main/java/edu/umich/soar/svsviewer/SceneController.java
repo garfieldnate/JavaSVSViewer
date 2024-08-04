@@ -31,7 +31,7 @@ import javafx.scene.transform.Translate;
 import javax.imageio.ImageIO;
 
 public class SceneController {
-  @FXML private StackPane rootPane;
+  @FXML private Pane rootPane;
   @FXML private Group contentGroup;
   @FXML private SubScene viewerScene;
 
@@ -88,6 +88,12 @@ public class SceneController {
     viewerScene.setFocusTraversable(true);
 
     initMouseControls(contentGroup, viewerScene);
+    contentGroup
+        .boundsInParentProperty()
+        .addListener(
+            (observable, oldValue, newValue) ->
+                Event.fireEvent(
+                    viewerScene, new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED)));
 
     GeometryManager geometryManager = new GeometryManager(rootPane, contentGroup);
     viewerScene.addEventFilter(
@@ -157,15 +163,15 @@ public class SceneController {
 
     VBox vbox = new VBox(connectionStatusText, connectionInstructionText);
     vbox.setAlignment(Pos.CENTER);
-    // The parent StackPane always tries to resize its contents to fit the whole pane, so we
-    // wrap in a Group because they always shrink to their contents and are not resizable.
-    Group group = new Group(vbox);
-    StackPane.setAlignment(group, Pos.CENTER);
 
-    rootPane.getChildren().add(group);
+    rootPane.getChildren().add(vbox);
+    // Bind vbox's layoutX and layoutY properties to keep it centered
+    vbox.layoutXProperty().bind(rootPane.widthProperty().subtract(vbox.widthProperty()).divide(2));
+    vbox.layoutYProperty()
+        .bind(rootPane.heightProperty().subtract(vbox.heightProperty()).divide(2));
 
     server = new Server(12122, inputProcessor);
-    server.onConnected(() -> group.setVisible(false));
+    server.onConnected(() -> vbox.setVisible(false));
     Thread th = new Thread(server);
     th.setDaemon(true);
     th.start();

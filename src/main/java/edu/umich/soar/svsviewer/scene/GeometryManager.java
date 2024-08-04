@@ -1,17 +1,13 @@
 package edu.umich.soar.svsviewer.scene;
 
-import edu.umich.soar.svsviewer.SVSViewerEvent;
 import edu.umich.soar.svsviewer.command.NameMatcher;
 import edu.umich.soar.svsviewer.util.WildcardMap;
-import javafx.event.Event;
 import javafx.geometry.Point2D;
-import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,17 +22,17 @@ public class GeometryManager {
   private final WildcardMap<SVSScene> scenes = new WildcardMap<>();
 
   private final Group contentGroup;
-  private final Pane labelPane;
+  private final Pane labelsPane;
 
-  public GeometryManager(StackPane rootPane, Group contentGroup) {
-    this.labelPane = new Pane();
-    StackPane.setAlignment(labelPane, Pos.TOP_LEFT);
-    labelPane.prefWidthProperty().bind(rootPane.widthProperty());
-    labelPane.prefHeightProperty().bind(rootPane.heightProperty());
-    labelPane.setStyle("-fx-border-color: red; -fx-border-width: 2;");
+  public GeometryManager(Pane rootPane, Group contentGroup) {
+    this.labelsPane = rootPane;
+    //    StackPane.setAlignment(labelsPane, Pos.TOP_LEFT);
+    //    labelsPane.prefWidthProperty().bind(rootPane.widthProperty());
+    //    labelsPane.prefHeightProperty().bind(rootPane.heightProperty());
+    //    labelsPane.setStyle("-fx-border-color: red; -fx-border-width: 2;");
 
     // Add overlayPane on top of whatever else is in rootStackPane
-    rootPane.getChildren().add(labelPane);
+    //    rootPane.getChildren().add(labelsPane);
 
     this.contentGroup = contentGroup;
   }
@@ -180,7 +176,7 @@ public class GeometryManager {
                 //                TODO: unsatisfyingly places label at 0,0; should be invisible
                 // until the node is
                 // updated with a location
-                labelPane.getChildren().add(geometry.getLabel());
+                labelsPane.getChildren().add(geometry.getLabel());
                 return geometry;
               });
     }
@@ -201,7 +197,7 @@ public class GeometryManager {
                           //        TODO: would be better to center in bounds instead of placing at
                           // (0,0,0)
                           Point2D screenLocation = geometry.getGroup().localToScreen(0, 0, 0);
-                          Point2D paneLocation = labelPane.screenToLocal(screenLocation);
+                          Point2D paneLocation = labelsPane.screenToLocal(screenLocation);
                           Node label = geometry.getLabel();
                           System.out.println(
                               geometry.getName()
