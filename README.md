@@ -16,7 +16,11 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
-- display labels
+- toggle label display (CSS property?)
+- make shortcuts discoverable; perhaps a simple help menu that can display a dialog with instructions
+	- demo video/gif?
+	- long-term I'd want menu items for the various actions with their shortcuts listed. Isn't there a way to register
+	  those on Mac? Because cheatsheet can look them up somehow.
 - display axes
 - wireframe
 
