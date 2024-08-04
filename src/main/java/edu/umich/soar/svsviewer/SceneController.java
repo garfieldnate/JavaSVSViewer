@@ -87,11 +87,12 @@ public class SceneController {
         });
     viewerScene.setFocusTraversable(true);
 
-    viewerScene.addEventFilter(SVSViewerEvent.SCENE_RERENDERED, this::sceneRerendered);
-
     initMouseControls(contentGroup, viewerScene);
 
-    GeometryManager geometryManager = new GeometryManager(contentGroup);
+    GeometryManager geometryManager = new GeometryManager(rootPane, contentGroup);
+    viewerScene.addEventFilter(
+        SVSViewerEvent.SCENE_RERENDERED, e -> geometryManager.updateLabelPositions());
+
     Consumer<String> inputProcessor =
         (String line) -> {
           System.out.println(line);
@@ -168,10 +169,6 @@ public class SceneController {
     Thread th = new Thread(server);
     th.setDaemon(true);
     th.start();
-  }
-
-  public void sceneRerendered(Event event) {
-    System.out.println("TODO: Update labels here");
   }
 
   /** Save an image file showing the current viewer scene */

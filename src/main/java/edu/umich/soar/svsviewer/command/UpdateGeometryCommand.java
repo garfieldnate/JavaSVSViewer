@@ -44,23 +44,23 @@ public record UpdateGeometryCommand(
     // the work in the loop). Might need to copy, though, because another command might modify only
     // part of this list.
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
-      Group group = geometry.group();
+      Group group = geometry.getGroup();
 
       if (position != null) {
         group.setTranslateX(position.get(0));
         group.setTranslateY(position.get(1));
         group.setTranslateZ(position.get(2));
-        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
+        rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (rotation != null) {
         rotateWithQuaternion(rotation, group);
-        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
+        rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (scale != null) {
         group.setScaleX(scale.get(0));
         group.setScaleY(scale.get(1));
         group.setScaleZ(scale.get(2));
-        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
+        rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
 
       if (vertices != null) {
@@ -68,14 +68,14 @@ public record UpdateGeometryCommand(
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
         meshView.setCullFace(CullFace.NONE);
-        geometry.group().getChildren().add(meshView);
-        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
+        geometry.getGroup().getChildren().add(meshView);
+        rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (radius != null) {
         group.getChildren().clear();
         Sphere s = new Sphere(radius);
-        geometry.group().getChildren().add(s);
-        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
+        geometry.getGroup().getChildren().add(s);
+        rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (text != null) {
         group.getChildren().clear();
@@ -106,7 +106,7 @@ public record UpdateGeometryCommand(
       if (color != null) {
         //        TODO: Soar's SVS doesn't support setting color, even though the viewer supports
         // it. Fix that!
-        for (Node child : geometry.group().getChildren()) {
+        for (Node child : geometry.getGroup().getChildren()) {
           if (child instanceof Shape3D shape) {
             shape.setMaterial(
                 new PhongMaterial(new Color(color.get(0), color.get(1), color.get(2), 1)));
@@ -115,7 +115,7 @@ public record UpdateGeometryCommand(
         // TODO: we're triggering the event so that labels can be re-drawn, which is not necessary
         // on a color change. Maybe we should have a separate event for "object's label location
         // moved" or "center moved" or something
-        rerenderedScenes.put(geometry.parent().name(), geometry.parent());
+        rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
     }
     for (SVSScene scene : rerenderedScenes.values()) {

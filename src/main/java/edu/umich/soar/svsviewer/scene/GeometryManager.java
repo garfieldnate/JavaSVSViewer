@@ -1,8 +1,17 @@
 package edu.umich.soar.svsviewer.scene;
 
+import edu.umich.soar.svsviewer.SVSViewerEvent;
 import edu.umich.soar.svsviewer.command.NameMatcher;
 import edu.umich.soar.svsviewer.util.WildcardMap;
+import javafx.event.Event;
+import javafx.geometry.Point2D;
+import javafx.geometry.Point3D;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,8 +26,18 @@ public class GeometryManager {
   private final WildcardMap<SVSScene> scenes = new WildcardMap<>();
 
   private final Group contentGroup;
+  private final Pane labelPane;
 
-  public GeometryManager(Group contentGroup) {
+  public GeometryManager(StackPane rootPane, Group contentGroup) {
+    this.labelPane = new Pane();
+    StackPane.setAlignment(labelPane, Pos.TOP_LEFT);
+    labelPane.prefWidthProperty().bind(rootPane.widthProperty());
+    labelPane.prefHeightProperty().bind(rootPane.heightProperty());
+    labelPane.setStyle("-fx-border-color: red; -fx-border-width: 2;");
+
+    // Add overlayPane on top of whatever else is in rootStackPane
+    rootPane.getChildren().add(labelPane);
+
     this.contentGroup = contentGroup;
   }
 
@@ -28,8 +47,7 @@ public class GeometryManager {
         (key) -> {
           SVSScene s = new SVSScene(sceneName);
           //    TODO: for now, we are always displaying only the S1 scene. Will probably enable
-          // showing
-          // different scenes on different tabs or something.
+          // showing different scenes on different tabs or something.
           if (sceneName.equals("S1")) {
             contentGroup.getChildren().add(s.root());
           }
@@ -76,6 +94,7 @@ public class GeometryManager {
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
     }
+    //    TODO: remove the labels for the deleted geometries
   }
 
   // delete scene(s)
@@ -156,10 +175,42 @@ public class GeometryManager {
           .computeIfAbsent(
               geometryName,
               n -> {
-                Group group = new Group();
-                s.root().getChildren().add(group);
-                return new Geometry(s, group);
+                Geometry geometry = new Geometry(geometryName, s);
+                s.root().getChildren().add(geometry.getGroup());
+                //                TODO: unsatisfyingly places label at 0,0; should be invisible
+                // until the node is
+                // updated with a location
+                labelPane.getChildren().add(geometry.getLabel());
+                return geometry;
               });
     }
+  }
+
+  public void updateLabelPositions() {
+    System.out.println("Updating label positions...");
+    // TODO: should be done only for the updated scene
+    scenes
+        .values()
+        .forEach(
+            scene ->
+                scene
+                    .geometries()
+                    .values()
+                    .forEach(
+                        geometry -> {
+                          //        TODO: would be better to center in bounds instead of placing at
+                          // (0,0,0)
+                          Point2D screenLocation = geometry.getGroup().localToScreen(0, 0, 0);
+                          Point2D paneLocation = labelPane.screenToLocal(screenLocation);
+                          Node label = geometry.getLabel();
+                          System.out.println(
+                              geometry.getName()
+                                  + " label XY: "
+                                  + paneLocation.getX()
+                                  + ","
+                                  + paneLocation.getY());
+                          label.setLayoutX(paneLocation.getX());
+                          label.setLayoutY(paneLocation.getY());
+                        }));
   }
 }
