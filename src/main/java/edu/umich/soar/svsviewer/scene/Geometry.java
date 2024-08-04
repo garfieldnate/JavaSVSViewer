@@ -24,7 +24,8 @@ public class Geometry {
     label = new TextFlow(new Text(name));
     // black text on white background for readability
     label.setStyle(
-        "-fx-background-color: white; -fx-font-weight: bold; -fx-font-family: 'Helvetica'");
+        // background color same as scene fill; TODO: extract to one place
+        "-fx-background-color: aliceblue; -fx-font-weight: bold; -fx-font-family: 'Helvetica'; -fx-background-radius: 2px; -fx-padding: 1px;");
     label.getStyleClass().add("geometry-label");
   }
 
