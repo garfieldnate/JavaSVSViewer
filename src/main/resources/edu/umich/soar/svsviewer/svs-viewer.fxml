@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.SubScene?>
 <?import java.net.URL?>
+<?import javafx.scene.SceneAntialiasing?>
 <Pane xmlns:fx="http://javafx.com/fxml" fx:controller="edu.umich.soar.svsviewer.SceneController"
       prefHeight="800"
       prefWidth="1400"
@@ -11,9 +12,16 @@
     <stylesheets>
         <URL value="@styles.css"/>
     </stylesheets>
-    <SubScene fx:id="viewerScene" width="1400" height="800" fill="ALICEBLUE" depthBuffer="true">
+    <SubScene fx:id="viewerScene"
+              width="1400"
+              height="800"
+              fill="ALICEBLUE"
+              depthBuffer="true">
         <root>
             <Group fx:id="contentGroup"/>
         </root>
+        <antiAliasing>
+            <SceneAntialiasing fx:constant="BALANCED"/>
+        </antiAliasing>
     </SubScene>
 </Pane>
