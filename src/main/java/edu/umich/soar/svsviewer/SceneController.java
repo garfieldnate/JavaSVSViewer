@@ -74,8 +74,11 @@ public class SceneController {
         .boundsInParentProperty()
         .addListener(
             (observable, oldValue, newValue) ->
-                Event.fireEvent(
-                    viewerScene, new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED)));
+                Platform.runLater(
+                    () ->
+                        Event.fireEvent(
+                            viewerScene,
+                            new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
 
     // Handle keyboard events
     viewerScene.setOnKeyPressed(
@@ -92,8 +95,11 @@ public class SceneController {
         .boundsInParentProperty()
         .addListener(
             (observable, oldValue, newValue) ->
-                Event.fireEvent(
-                    viewerScene, new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED)));
+                Platform.runLater(
+                    () ->
+                        Event.fireEvent(
+                            viewerScene,
+                            new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
 
     GeometryManager geometryManager = new GeometryManager(rootPane, contentGroup);
     viewerScene.addEventFilter(
