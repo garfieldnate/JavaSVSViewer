@@ -1,19 +1,22 @@
 package edu.umich.soar.svsviewer.scene;
 
+import edu.umich.soar.svsviewer.Axes3DBuilder;
 import edu.umich.soar.svsviewer.command.NameMatcher;
+import edu.umich.soar.svsviewer.util.Labels;
 import edu.umich.soar.svsviewer.util.WildcardMap;
-import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
+import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.Shape3D;
+import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static edu.umich.soar.svsviewer.Axes3DBuilder.*;
 
 /**
  * Manages all of the 3D objects received over the network. Geometries are in scenes, which
@@ -23,10 +26,11 @@ public class GeometryManager {
 
   private final WildcardMap<SVSScene> scenes = new WildcardMap<>();
 
-  private final Group contentGroup;
+  private final Group geometryRoot;
+  private Axes3D axes;
   private final Pane labelsPane;
 
-  public GeometryManager(Pane rootPane, Group contentGroup) {
+  public GeometryManager(Pane rootPane, Group geometryRoot) {
     this.labelsPane = rootPane;
     //    StackPane.setAlignment(labelsPane, Pos.TOP_LEFT);
     //    labelsPane.prefWidthProperty().bind(rootPane.widthProperty());
@@ -36,7 +40,14 @@ public class GeometryManager {
     // Add overlayPane on top of whatever else is in rootStackPane
     //    rootPane.getChildren().add(labelsPane);
 
-    this.contentGroup = contentGroup;
+    this.geometryRoot = geometryRoot;
+    axes = new Axes3DBuilder().build();
+    axes.setVisible(false);
+    geometryRoot.getChildren().add(axes.getNode());
+    for (Node label : axes.getLabels()) {
+      labelsPane.getChildren().add(label);
+    }
+    axes.updateLabelLocations(labelsPane);
   }
 
   public void createSceneIfNotExists(String sceneName) {
@@ -47,7 +58,7 @@ public class GeometryManager {
           //    TODO: for now, we are always displaying only the S1 scene. Will probably enable
           // showing different scenes on different tabs or something.
           if (sceneName.equals("S1")) {
-            contentGroup.getChildren().add(s.root());
+            geometryRoot.getChildren().add(s.root());
           }
           return s;
         });
@@ -196,20 +207,11 @@ public class GeometryManager {
                     .values()
                     .forEach(
                         geometry -> {
-                          //        TODO: would be better to center in bounds instead of placing at
-                          // (0,0,0)
-                          Point2D screenLocation = geometry.getGroup().localToScreen(0, 0, 0);
-                          Point2D paneLocation = labelsPane.screenToLocal(screenLocation);
-                          Node label = geometry.getLabel();
-                          //                          System.out.println(
-                          //                              geometry.getName()
-                          //                                  + " label XY: "
-                          //                                  + paneLocation.getX()
-                          //                                  + ","
-                          //                                  + paneLocation.getY());
-                          label.setLayoutX(paneLocation.getX());
-                          label.setLayoutY(paneLocation.getY());
+                          Labels.updateLocation(
+                              labelsPane, geometry.getGroup(), geometry.getLabel());
                         }));
+
+    axes.updateLabelLocations(labelsPane);
   }
 
   public void setDrawMode(DrawMode mode) {
@@ -225,6 +227,10 @@ public class GeometryManager {
                         geometry -> {
                           setDrawModeRecursive(geometry.getGroup(), mode);
                         }));
+  }
+
+  public void toggleAxesVisibility() {
+    axes.setVisible(!axes.isVisible());
   }
 
   private static void setDrawModeRecursive(Node node, DrawMode mode) {

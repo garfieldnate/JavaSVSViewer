@@ -1,6 +1,12 @@
-/* Initially all geometry labels are shown */
 .geometry-label {
+    /* Initially all geometry labels are shown */
     -fx-opacity: 1;
+    /* Same as root pane fill color. TODO: can we unify them somehow? */
+    -fx-background-color: aliceblue;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Helvetica';
+    -fx-background-radius: 2px;
+    -fx-padding: 1px;
 }
 
 /* Apply this class to hide all of the contained geometry labels labels */

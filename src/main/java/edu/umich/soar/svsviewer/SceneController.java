@@ -1,5 +1,6 @@
 package edu.umich.soar.svsviewer;
 
+import edu.umich.soar.svsviewer.Axes3DBuilder.Axes3D;
 import edu.umich.soar.svsviewer.command.Command;
 import edu.umich.soar.svsviewer.parsing.Parser;
 import edu.umich.soar.svsviewer.parsing.Tokenizer;
@@ -16,7 +17,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.image.WritableImage;
@@ -54,7 +54,6 @@ public class SceneController {
   private static final String GEO_LABELS_OFF_CLASS = "geo-labels-off";
 
   private DrawMode drawMode = DrawMode.FILL;
-  private Node axes;
 
   @FXML
   public void initialize() {
@@ -98,7 +97,7 @@ public class SceneController {
             case L -> toggleSceneLabels();
             case M -> toggleSceneDrawMode();
             case S -> saveScreenshot();
-            case G -> axes.setVisible(!axes.isVisible());
+            case G -> geometryManager.toggleAxesVisibility();
           }
         });
     viewerScene.setFocusTraversable(true);
@@ -143,9 +142,6 @@ public class SceneController {
         };
 
     initServer(inputProcessor);
-    axes = new Axes3DBuilder().build();
-    axes.setVisible(false);
-    shapeGroup.getChildren().add(axes);
 
     //    TODO: factor out or put in constants or something
     AmbientLight globalAmbientLight = new AmbientLight(Color.color(.4, .4, .4));
