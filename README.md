@@ -16,8 +16,6 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
-- display axes (see svs_viewer's draw_grid)
-	- fix incorrect axes
 - render fill + line simultaneously with the M shortcut
 - camera translation
 - camera rotation

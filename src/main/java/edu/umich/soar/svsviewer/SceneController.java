@@ -1,6 +1,5 @@
 package edu.umich.soar.svsviewer;
 
-import edu.umich.soar.svsviewer.Axes3DBuilder.Axes3D;
 import edu.umich.soar.svsviewer.command.Command;
 import edu.umich.soar.svsviewer.parsing.Parser;
 import edu.umich.soar.svsviewer.parsing.Tokenizer;
@@ -19,6 +18,8 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -142,6 +143,8 @@ public class SceneController {
     pointLight1.setTranslateY(100);
     pointLight1.setTranslateZ(100);
     rootGroup.getChildren().add(pointLight1);
+
+    initMenu(rootPane);
   }
 
   private void toggleSceneLabels() {
@@ -214,6 +217,56 @@ public class SceneController {
     Thread th = new Thread(server);
     th.setDaemon(true);
     th.start();
+  }
+
+  private void initMenu(Pane parentPane) {
+    //    Everything below just to: show a menu bar with Help->Tutorial that shows a dialog with
+    // usage instructions
+    MenuBar menuBar = new MenuBar();
+    final String os = System.getProperty("os.name");
+    if (os != null && os.startsWith("Mac")) {
+      // Mac applications use the system menu bar; no placement on parent pane required
+      menuBar.useSystemMenuBarProperty().set(true);
+    } else {
+      // For other OS's, it will show up in the top of the parent pane. Span the width of
+      // the window so it looks like a proper menu bar.
+      menuBar.prefWidthProperty().bind(rootPane.widthProperty());
+      menuBar.setStyle("-fx-font-family: 'Helvetica'; -fx-font-size: 14px; -fx-font-weight: bold");
+    }
+    Menu helpMenu = new Menu("Help");
+    MenuItem tutorialItem = new MenuItem("Tutorial");
+    helpMenu.getItems().add(tutorialItem);
+    menuBar.getMenus().add(helpMenu);
+
+    // Add event handler to the about item
+    tutorialItem.setOnAction(
+        e -> {
+          Alert alert = new Alert(AlertType.INFORMATION);
+          alert.setTitle("Tutorial");
+          alert.setHeaderText(null);
+
+          // Create a TextArea for selectable text
+          TextArea textArea = new TextArea(Help.DOCS);
+          textArea.setEditable(false); // Make it non-editable
+          textArea.setWrapText(true); // Enable text wrapping
+          textArea.setMaxWidth(Double.MAX_VALUE); // Use max width for better layout
+          textArea.setMaxHeight(Double.MAX_VALUE); // Use max height for better layout
+          GridPane.setVgrow(textArea, Priority.ALWAYS);
+          GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+          GridPane content = new GridPane();
+          content.setMaxWidth(Double.MAX_VALUE);
+          content.add(textArea, 0, 0);
+
+          // Set the dialog pane content to the layout containing the TextArea
+          DialogPane dialogPane = alert.getDialogPane();
+          dialogPane.setContent(content);
+
+          dialogPane.setStyle(
+              "-fx-font-family: 'Helvetica'; -fx-font-size: 14px; -fx-font-weight: bold");
+          alert.showAndWait();
+        });
+    parentPane.getChildren().add(menuBar);
   }
 
   /** Save an image file showing the current viewer scene */
