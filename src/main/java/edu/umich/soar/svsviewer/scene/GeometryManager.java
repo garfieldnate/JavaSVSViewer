@@ -67,6 +67,7 @@ public class GeometryManager {
       case WILDCARD -> scenes.removeWithWildcards(sceneMatcher.namePattern());
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
+        // TODO: remove the labels for the deleted geometries
     }
   }
 
@@ -100,7 +101,7 @@ public class GeometryManager {
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
     }
-    //    TODO: remove the labels for the deleted geometries
+    // TODO: remove the labels for the deleted geometries
   }
 
   // delete scene(s)

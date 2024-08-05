@@ -25,6 +25,9 @@ NEXT: prioritize features likely needed for preview release
 	- long-term I'd want menu items for the various actions with their shortcuts listed. Isn't there a way to register
 	  those on Mac? Because cheatsheet can look them up somehow.
 - fix SLF4J warnings, and use logging instead of System.out/err
+- rename to SVSViewerFX (for standalone apps, noone needs to know it's Java!)
+- message in lower-left corner when agent disconnects
+- when scene or geometry is removed, need to remove label, too
 
 ## Bugs
 
