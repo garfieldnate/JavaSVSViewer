@@ -16,14 +16,12 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
-- camera translation
-- camera rotation
-- z-axis rotation
 - change all shortcuts to match svs_viewer? Or just make sure they are intuitive.
 - make shortcuts discoverable; perhaps a simple help menu that can display a dialog with instructions
 	- demo video/gif?
 	- long-term I'd want menu items for the various actions with their shortcuts listed. Isn't there a way to register
 	  those on Mac? Because cheatsheet can look them up somehow.
+	- message in lower-left corner when a keyboard/mouse action is used
 - fix SLF4J warnings, and use logging instead of System.out/err
 - rename to SVSViewerFX (for standalone apps, noone needs to know it's Java!)
 - message in lower-left corner when agent disconnects

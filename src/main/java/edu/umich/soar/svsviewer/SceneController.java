@@ -16,6 +16,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -28,6 +29,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javax.imageio.ImageIO;
 
@@ -56,6 +58,13 @@ public class SceneController {
 
   private DrawMode drawMode = DrawMode.FILL;
 
+  private final Translate cameraTranslation = new Translate(0, 0, -15);
+
+  private final Rotate cameraYaw = new Rotate(0, Rotate.Y_AXIS);
+  private final Rotate cameraPitch = new Rotate(0, Rotate.X_AXIS);
+  private final Rotate cameraRoll = new Rotate(0, Rotate.Z_AXIS);
+  private static final double CAMERA_TRANSLATION_SPEED = 0.1;
+
   @FXML
   public void initialize() {
     //    TODO: This just makes our THOR-Soar setup look nice immediately because we use Z as
@@ -64,27 +73,65 @@ public class SceneController {
 
     // Create and position camera
     PerspectiveCamera camera = new PerspectiveCamera(true);
-    camera.getTransforms().addAll(new Translate(0, 0, -15));
+    camera.getTransforms().addAll(cameraTranslation, cameraYaw, cameraPitch, cameraRoll);
 
     // Add camera to scene
     viewerScene.setCamera(camera);
 
-    camera
-        .boundsInParentProperty()
-        .addListener(
-            (observable, oldValue, newValue) ->
-                Platform.runLater(
-                    () ->
-                        Event.fireEvent(
-                            viewerScene,
-                            new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
+    for (Transform t : List.of(cameraYaw, cameraPitch, cameraRoll, cameraTranslation)) {
+      t.setOnTransformChanged(
+          value ->
+              Platform.runLater(
+                  () ->
+                      Event.fireEvent(
+                          viewerScene,
+                          new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
+    }
 
     // Handle keyboard events
     viewerScene.setOnKeyPressed(
         event -> {
+          // Check for Cmd on macOS or Ctrl on other platforms
+          boolean isCmdOrCtrlDown = event.isMetaDown() || event.isControlDown();
           switch (event.getCode()) {
-            case UP -> camera.translateZProperty().set(camera.getTranslateZ() + .1);
-            case DOWN -> camera.translateZProperty().set(camera.getTranslateZ() - .1);
+            case UP -> {
+              if (isCmdOrCtrlDown) {
+                cameraPitch.setAngle(cameraPitch.getAngle() + 2);
+              } else {
+                zoomCamera(CAMERA_TRANSLATION_SPEED);
+              }
+            }
+            case DOWN -> {
+              if (isCmdOrCtrlDown) {
+                cameraPitch.setAngle(cameraPitch.getAngle() - 2);
+              } else {
+                zoomCamera(-CAMERA_TRANSLATION_SPEED);
+              }
+            }
+            case LEFT -> {
+              if (isCmdOrCtrlDown) {
+                cameraYaw.setAngle(cameraYaw.getAngle() - 2); // Rotate left
+              }
+              // TODO: Not supporting roll for now because a rolled camera has unintuitive yaw/pitch
+              // controls. Need more complex calculations for yaw/pitch to support roll.
+              //              else if (event.isShiftDown()) {
+              //                cameraRoll.setAngle(cameraRoll.getAngle() + 2);
+              //              }
+              else {
+                cameraTranslation.setX(cameraTranslation.getX() - CAMERA_TRANSLATION_SPEED);
+              }
+            }
+            case RIGHT -> {
+              if (isCmdOrCtrlDown) {
+                cameraYaw.setAngle(cameraYaw.getAngle() + 2); // Rotate right
+              }
+              //              else if (event.isShiftDown()) {
+              //                cameraRoll.setAngle(cameraRoll.getAngle() - 2);
+              //              }
+              else {
+                cameraTranslation.setX(cameraTranslation.getX() + CAMERA_TRANSLATION_SPEED);
+              }
+            }
             case L -> toggleSceneLabels();
             case M -> geometryManager.nextDrawingMode();
             case S -> saveScreenshot();
@@ -296,5 +343,29 @@ public class SceneController {
       suffix = Integer.toString(screenshotCounter);
     } while (outputFile.exists());
     return outputFile;
+  }
+
+  private void zoomCamera(double speed) {
+    // Calculate the direction vector
+    double dx = Math.sin(Math.toRadians(cameraYaw.getAngle()));
+    double dy = -Math.sin(Math.toRadians(cameraPitch.getAngle()));
+    double dz =
+        Math.cos(Math.toRadians(cameraYaw.getAngle()))
+            * Math.cos(Math.toRadians(cameraPitch.getAngle()));
+
+    // Normalize the direction vector
+    double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    dx /= length;
+    dy /= length;
+    dz /= length;
+
+    // Calculate the new position
+    double newX = cameraTranslation.getX() + dx * speed;
+    double newY = cameraTranslation.getY() + dy * speed;
+    double newZ = cameraTranslation.getZ() + dz * speed;
+
+    cameraTranslation.setX(newX);
+    cameraTranslation.setY(newY);
+    cameraTranslation.setZ(newZ);
   }
 }
