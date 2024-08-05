@@ -6,6 +6,7 @@ public class Help {
   * grid size is .5
   * shortcuts are... TODO
   * Listens at port 12122. Connect by... TODO
+  * Only shows scenes named S1
   * If you have suggestions or issues with the software, please open an issue at the GitHub repository: https://github.com/garfieldnate/JavaSVSViewer/issues/new
 """;
 }

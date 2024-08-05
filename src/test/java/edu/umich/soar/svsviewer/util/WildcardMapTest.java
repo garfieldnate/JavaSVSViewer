@@ -118,9 +118,9 @@ public class WildcardMapTest {
     map.put("nate", "Nate");
     map.put("na*e", "Star");
 
-    int numRemoved = map.removeWithWildcards("na*e");
+    Collection<String> removed = map.removeWithWildcards("na*e");
 
-    assertEquals(3, numRemoved, "Expected 3 entries to be removed");
+    assertThat(removed).hasSameElementsAs(List.of("Amy", "Nate", "Star"));
     assertEquals(0, map.size(), "Expected map to be empty");
   }
 

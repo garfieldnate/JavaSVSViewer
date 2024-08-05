@@ -152,12 +152,12 @@ public class WildcardMap<T> implements Map<String, T> {
     }
   }
 
-  public int removeWithWildcards(String keyWithWildcards) {
+  public Collection<T> removeWithWildcards(String keyWithWildcards) {
     List<Entry<T>> pairsToRemove = getWithWildcards(keyWithWildcards);
     for (Entry<T> entry : pairsToRemove) {
       remove(entry.key());
     }
-    return pairsToRemove.size();
+    return pairsToRemove.stream().map(Entry::value).toList();
   }
 
   @Override

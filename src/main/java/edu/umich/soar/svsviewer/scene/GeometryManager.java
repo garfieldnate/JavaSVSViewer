@@ -8,6 +8,7 @@ import edu.umich.soar.svsviewer.util.DrawingMode;
 import edu.umich.soar.svsviewer.util.Labels;
 import edu.umich.soar.svsviewer.util.WildcardMap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javafx.scene.Group;
@@ -62,13 +63,21 @@ public class GeometryManager {
   }
 
   public void deleteScene(NameMatcher sceneMatcher) {
+    Collection<SVSScene> removedScenes;
     switch (sceneMatcher.matchType()) {
-      case EXACT -> scenes.remove(sceneMatcher.namePattern());
-      case WILDCARD -> scenes.removeWithWildcards(sceneMatcher.namePattern());
+      case EXACT -> {
+        SVSScene s = scenes.remove(sceneMatcher.namePattern());
+        if (s != null) {
+          removedScenes = List.of(s);
+        } else {
+          removedScenes = Collections.emptyList();
+        }
+      }
+      case WILDCARD -> removedScenes = scenes.removeWithWildcards(sceneMatcher.namePattern());
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
-        // TODO: remove the labels for the deleted geometries
     }
+    removedScenes.forEach(this::removeSceneNodes);
   }
 
   public void deleteGeometry(NameMatcher sceneMatcher, NameMatcher geometryMatcher) {
@@ -94,14 +103,36 @@ public class GeometryManager {
 
     switch (geometryMatcher.matchType()) {
       case EXACT ->
-          scenesToDeleteFrom.forEach(s -> s.geometries().remove(geometryMatcher.namePattern()));
+          scenesToDeleteFrom.forEach(
+              s -> {
+                Geometry removedGeometry = s.geometries().remove(geometryMatcher.namePattern());
+                if (removedGeometry != null) {
+                  removeGeometryNodes(s, removedGeometry);
+                }
+              });
       case WILDCARD ->
           scenesToDeleteFrom.forEach(
-              s -> s.geometries().removeWithWildcards(geometryMatcher.namePattern()));
+              s -> {
+                Collection<Geometry> removedGeometries =
+                    s.geometries().removeWithWildcards(geometryMatcher.namePattern());
+                removedGeometries.forEach(g -> removeGeometryNodes(s, g));
+              });
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
     }
     // TODO: remove the labels for the deleted geometries
+  }
+
+  private void removeSceneNodes(SVSScene scene) {
+    for (Geometry geo : scene.geometries().values()) {
+      removeGeometryNodes(scene, geo);
+    }
+    geometryRoot.getChildren().remove(scene.root());
+  }
+
+  private void removeGeometryNodes(SVSScene scene, Geometry geometry) {
+    geometry.modifyGroups(g -> scene.root().getChildren().remove(g));
+    labelsPane.getChildren().remove(geometry.getLabel());
   }
 
   // delete scene(s)
