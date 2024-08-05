@@ -1,17 +1,22 @@
 package edu.umich.soar.svsviewer.scene;
 
+import static edu.umich.soar.svsviewer.util.Labels.createLabel;
+
+import edu.umich.soar.svsviewer.util.DrawingMode;
+import java.util.function.Consumer;
 import javafx.scene.Group;
 import javafx.scene.Node;
 
-import static edu.umich.soar.svsviewer.util.Labels.createLabel;
-
-// The contained group may have 0 or 1 children; the 1 child would be a Shape3d.
-// We use a Group because we need to be able to specify position/rotation/scale
-// without any particular shape yet specified.
 public class Geometry {
   private final SVSScene parent;
   private final String name;
+  // May have 0 or 1 children; the 1 child would be a Shape3d.
+  // We use a Group because we need to be able to specify position/rotation/scale
+  // without any particular shape yet specified.
   private final Group group;
+  // holds an exact copy of group, but with DrawMode always set to LINE. This is to
+  // support DrawingMode.FILL_AND_LINE display.
+  private final Group lineGroup;
 
   private final Node label;
 
@@ -19,11 +24,29 @@ public class Geometry {
     this.name = name;
     this.parent = parent;
     group = new Group();
+    lineGroup = new Group();
     label = createLabel(name);
   }
 
   public Group getGroup() {
     return group;
+  }
+
+  /**
+   * If the client doesn't need the underlying main Group or line Group, it's recommended to operate
+   * on them via this method to ensure that they stay in sync.
+   */
+  public void modifyGroups(Consumer<Group> modifier) {
+    modifier.accept(getGroup());
+    modifier.accept(getLineGroup());
+  }
+
+  public void clearChildren() {
+    modifyGroups(g -> g.getChildren().clear());
+  }
+
+  public Group getLineGroup() {
+    return lineGroup;
   }
 
   public Node getLabel() {
@@ -36,5 +59,18 @@ public class Geometry {
 
   public SVSScene getParent() {
     return parent;
+  }
+
+  void setDrawingMode(DrawingMode mode) {
+    if (mode == DrawingMode.LINE) {
+      getGroup().setVisible(false);
+      getLineGroup().setVisible(true);
+    } else if (mode == DrawingMode.FILL) {
+      getGroup().setVisible(true);
+      getLineGroup().setVisible(false);
+    } else if (mode == DrawingMode.FILL_AND_LINE) {
+      getGroup().setVisible(true);
+      getLineGroup().setVisible(true);
+    }
   }
 }

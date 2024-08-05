@@ -16,7 +16,6 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
-- render fill + line simultaneously with the M shortcut
 - camera translation
 - camera rotation
 - z-axis rotation

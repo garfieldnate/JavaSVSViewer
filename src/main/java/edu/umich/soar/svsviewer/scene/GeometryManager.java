@@ -1,22 +1,18 @@
 package edu.umich.soar.svsviewer.scene;
 
+import static edu.umich.soar.svsviewer.Axes3DBuilder.*;
+
 import edu.umich.soar.svsviewer.Axes3DBuilder;
 import edu.umich.soar.svsviewer.command.NameMatcher;
+import edu.umich.soar.svsviewer.util.DrawingMode;
 import edu.umich.soar.svsviewer.util.Labels;
 import edu.umich.soar.svsviewer.util.WildcardMap;
-import javafx.geometry.Point3D;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.layout.Pane;
-import javafx.scene.shape.DrawMode;
-import javafx.scene.shape.Shape3D;
-import javafx.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static edu.umich.soar.svsviewer.Axes3DBuilder.*;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 
 /**
  * Manages all of the 3D objects received over the network. Geometries are in scenes, which
@@ -27,8 +23,9 @@ public class GeometryManager {
   private final WildcardMap<SVSScene> scenes = new WildcardMap<>();
 
   private final Group geometryRoot;
-  private Axes3D axes;
+  private final Axes3D axes;
   private final Pane labelsPane;
+  private DrawingMode drawingMode = DrawingMode.FILL_AND_LINE;
 
   public GeometryManager(Pane rootPane, Group geometryRoot) {
     this.labelsPane = rootPane;
@@ -185,11 +182,12 @@ public class GeometryManager {
               geometryName,
               n -> {
                 Geometry geometry = new Geometry(geometryName, s);
-                s.root().getChildren().add(geometry.getGroup());
-                //                TODO: unsatisfyingly places label at 0,0; should be invisible
-                // until the node is
+                geometry.modifyGroups(node -> s.root().getChildren().add(node));
+                // TODO: unsatisfyingly places label at 0,0; should be invisible until the node is
                 // updated with a location
                 labelsPane.getChildren().add(geometry.getLabel());
+                geometry.setDrawingMode(drawingMode);
+
                 return geometry;
               });
     }
@@ -206,41 +204,28 @@ public class GeometryManager {
                     .geometries()
                     .values()
                     .forEach(
-                        geometry -> {
-                          Labels.updateLocation(
-                              labelsPane, geometry.getGroup(), geometry.getLabel());
-                        }));
+                        geometry ->
+                            Labels.updateLocation(
+                                labelsPane, geometry.getGroup(), geometry.getLabel())));
 
     axes.updateLabelLocations(labelsPane);
   }
 
-  public void setDrawMode(DrawMode mode) {
+  public void nextDrawingMode() {
+    setDrawingMode(drawingMode.getNextMode());
+  }
+
+  void setDrawingMode(DrawingMode mode) {
+    this.drawingMode = mode;
     // TODO: just set for one scene
     scenes
         .values()
         .forEach(
             scene ->
-                scene
-                    .geometries()
-                    .values()
-                    .forEach(
-                        geometry -> {
-                          setDrawModeRecursive(geometry.getGroup(), mode);
-                        }));
+                scene.geometries().values().forEach(geometry -> geometry.setDrawingMode(mode)));
   }
 
   public void toggleAxesVisibility() {
     axes.setVisible(!axes.isVisible());
-  }
-
-  private static void setDrawModeRecursive(Node node, DrawMode mode) {
-    if (node instanceof Shape3D) {
-      ((Shape3D) node).setDrawMode(mode);
-    }
-    if (node instanceof Group) {
-      for (Node child : ((Group) node).getChildren()) {
-        setDrawModeRecursive(child, mode);
-      }
-    }
   }
 }

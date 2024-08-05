@@ -86,7 +86,7 @@ public class SceneController {
             case UP -> camera.translateZProperty().set(camera.getTranslateZ() + .1);
             case DOWN -> camera.translateZProperty().set(camera.getTranslateZ() - .1);
             case L -> toggleSceneLabels();
-            case M -> toggleSceneDrawMode();
+            case M -> geometryManager.nextDrawingMode();
             case S -> saveScreenshot();
             case G -> geometryManager.toggleAxesVisibility();
           }
@@ -156,15 +156,6 @@ public class SceneController {
       //                System.out.println("Showing labels");
       rootPane.getStyleClass().remove(GEO_LABELS_OFF_CLASS);
     }
-  }
-
-  private void toggleSceneDrawMode() {
-    if (drawMode == DrawMode.FILL) {
-      drawMode = DrawMode.LINE;
-    } else {
-      drawMode = DrawMode.FILL;
-    }
-    geometryManager.setDrawMode(drawMode);
   }
 
   private void initMouseControls(Group group, SubScene scene) {

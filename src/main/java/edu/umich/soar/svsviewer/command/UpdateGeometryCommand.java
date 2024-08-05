@@ -44,27 +44,31 @@ public record UpdateGeometryCommand(
     // the work in the loop). Might need to copy, though, because another command might modify only
     // part of this list.
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
-      Group group = geometry.getGroup();
-
       if (position != null) {
-        group.setTranslateX(position.get(0));
-        group.setTranslateY(position.get(1));
-        group.setTranslateZ(position.get(2));
+        geometry.modifyGroups(
+            node -> {
+              node.setTranslateX(position.get(0));
+              node.setTranslateY(position.get(1));
+              node.setTranslateZ(position.get(2));
+            });
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (rotation != null) {
-        rotateWithQuaternion(rotation, group);
+        rotateWithQuaternion(rotation, geometry);
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (scale != null) {
-        group.setScaleX(scale.get(0));
-        group.setScaleY(scale.get(1));
-        group.setScaleZ(scale.get(2));
+        geometry.modifyGroups(
+            node -> {
+              node.setScaleX(scale.get(0));
+              node.setScaleY(scale.get(1));
+              node.setScaleZ(scale.get(2));
+            });
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
 
       if (vertices != null) {
-        group.getChildren().clear();
+        geometry.clearChildren();
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
         meshView.setCullFace(CullFace.NONE);
@@ -76,29 +80,28 @@ public record UpdateGeometryCommand(
         // shinier
         meshView.setMaterial(shinyMaterial);
 
-        geometry.getGroup().getChildren().add(meshView);
+        MeshView lineMesh = new MeshView(mesh);
+        lineMesh.setMaterial(new PhongMaterial(Color.BLACK));
+        lineMesh.setDrawMode(DrawMode.LINE);
 
-        //        TODO: make this experiment into a feature. It shows shapes in high-contrast
-        // with line outlines + fill, almost cel-shaded. Need to be able to toggle visibility
-        // because when we toggle draw mode right now the fill turns solid black.
-        //        MeshView meshView2 = new MeshView(mesh);
-        //        meshView2.setCullFace(CullFace.NONE);
-        //        meshView2.setDrawMode(DrawMode.LINE);
-        //        PhongMaterial outlineMaterial = new PhongMaterial(Color.BLACK);
-        //        meshView2.setMaterial(outlineMaterial);
-        //        geometry.getGroup().getChildren().add(meshView2);
-        //        meshView2.setVisible(false);
+        geometry.getGroup().getChildren().add(meshView);
+        geometry.getLineGroup().getChildren().add(lineMesh);
 
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (radius != null) {
-        group.getChildren().clear();
+        geometry.clearChildren();
         Sphere s = new Sphere(radius);
         geometry.getGroup().getChildren().add(s);
+
+        Sphere lineSphere = new Sphere(radius);
+        lineSphere.setDrawMode(DrawMode.LINE);
+        geometry.getLineGroup().getChildren().add(lineSphere);
+
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (text != null) {
-        group.getChildren().clear();
+        geometry.clearChildren();
         // svs_viewer calls draw_text(g->text, 0, 0), which would draw at the origin no matter where
         // the geometry is;
         // that seems wrong. I think maybe it was never implemented properly because it's not
@@ -196,12 +199,15 @@ public record UpdateGeometryCommand(
     return mesh;
   }
 
-  private void rotateWithQuaternion(List<Double> quaternion, Group group) {
+  private void rotateWithQuaternion(List<Double> quaternion, Geometry geometry) {
     Rotate rotation = quaternionToRotation(quaternion);
 
-    // Override any other existing rotations
-    group.getTransforms().removeIf(transform -> transform instanceof Rotate);
-    group.getTransforms().add(rotation);
+    geometry.modifyGroups(
+        g -> {
+          // Override any other existing rotations
+          g.getTransforms().removeIf(transform -> transform instanceof Rotate);
+          g.getTransforms().add(rotation);
+        });
   }
 
   //  TODO: create dedicated quaternion object instead of using a list
