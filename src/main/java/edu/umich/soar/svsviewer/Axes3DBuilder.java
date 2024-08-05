@@ -16,21 +16,21 @@ import java.util.Objects;
 
 import static edu.umich.soar.svsviewer.util.Labels.createLabel;
 
-// TODO: Code only works just for showing XY plane.
+// TODO: Code might not always show a grid, depending on the visible axis choices.
 // TODO: Put builder inside main class instead of the other way around
 public class Axes3DBuilder {
   private static final LineType lineType = LineType.TRIANGLE;
 
   private int numberOfGridLines = 10;
 
-  private double gridSize = .5;
+  private double gridSize = .5d;
 
   private float gridLineWidth = .05f;
   private float axisLineWidth = .05f;
 
   private boolean showXAxis = true;
   private boolean showYAxis = true;
-  private boolean showZAxis = false;
+  private boolean showZAxis = true;
   private boolean labelAxes = true;
 
   private Color xAxisColor = new Color(0.7, 0.0, 0.0, 0.5);
@@ -105,11 +105,9 @@ public class Axes3DBuilder {
   }
 
   public Axes3D build() {
-    //    TODO: support showing Z axis
     Group root = new Group();
     List<Pair<javafx.geometry.Point3D, Node>> labels = new ArrayList<>();
 
-    //    TODO: looks like we have Y and Z switched for some reason
     // Grid lines parallel to axes
     double g = numberOfGridLines * gridSize;
     for (int i = -numberOfGridLines; i <= numberOfGridLines; i++) {
@@ -117,7 +115,7 @@ public class Axes3DBuilder {
       if (showXAxis) {
         PolyLine3D lineX =
             new PolyLine3D(
-                List.of(new Point3D(-g, 0, offset), new Point3D(g, 0, offset)),
+                List.of(new Point3D(-g, offset, 0), new Point3D(g, offset, 0)),
                 gridLineWidth,
                 gridColor,
                 lineType);
@@ -127,7 +125,7 @@ public class Axes3DBuilder {
       if (showYAxis) {
         PolyLine3D lineY =
             new PolyLine3D(
-                List.of(new Point3D(offset, 0, -g), new Point3D(offset, 0, g)),
+                List.of(new Point3D(offset, -g, 0), new Point3D(offset, g, 0)),
                 gridLineWidth,
                 gridColor,
                 lineType);
@@ -135,13 +133,36 @@ public class Axes3DBuilder {
       }
 
       if (showZAxis) {
-        PolyLine3D lineZ =
-            new PolyLine3D(
-                List.of(new Point3D(0, -g, offset), new Point3D(0, g, offset)),
-                gridLineWidth,
-                gridColor,
-                lineType);
-        root.getChildren().add(lineZ);
+        if (showXAxis) {
+          PolyLine3D lineZ =
+              new PolyLine3D(
+                  List.of(new Point3D(offset, 0, -g), new Point3D(offset, 0, g)),
+                  gridLineWidth,
+                  gridColor,
+                  lineType);
+          PolyLine3D lineX =
+              new PolyLine3D(
+                  List.of(new Point3D(-g, 0, offset), new Point3D(g, 0, offset)),
+                  gridLineWidth * 2,
+                  gridColor,
+                  lineType);
+          root.getChildren().addAll(lineZ, lineX);
+        }
+        if (showYAxis) {
+          PolyLine3D lineZ =
+              new PolyLine3D(
+                  List.of(new Point3D(0, offset, -g), new Point3D(0, offset, g)),
+                  gridLineWidth,
+                  gridColor,
+                  lineType);
+          PolyLine3D lineY =
+              new PolyLine3D(
+                  List.of(new Point3D(0, -g, offset), new Point3D(0, g, offset)),
+                  gridLineWidth,
+                  gridColor,
+                  lineType);
+          root.getChildren().addAll(lineZ, lineY);
+        }
       }
     }
 
@@ -149,38 +170,38 @@ public class Axes3DBuilder {
     if (showXAxis) {
       PolyLine3D xAxis =
           new PolyLine3D(
-              List.of(new Point3D(0.0, 0, -g), new Point3D(0.0, 0, g)),
+              List.of(new Point3D(-g, 0, 0), new Point3D(g, 0, 0)),
               axisLineWidth,
               xAxisColor,
               lineType);
       root.getChildren().add(xAxis);
-      labels.add(new Pair<>(new javafx.geometry.Point3D(0.0, 0.0, -g), createLabel("-X")));
-      labels.add(new Pair<>(new javafx.geometry.Point3D(0.0, 0.0, g), createLabel("+X")));
+      labels.add(new Pair<>(new javafx.geometry.Point3D(-g, 0, 0), createLabel("-X")));
+      labels.add(new Pair<>(new javafx.geometry.Point3D(g, 0, 0), createLabel("+X")));
     }
     if (showYAxis) {
       PolyLine3D yAxis =
           new PolyLine3D(
-              List.of(new Point3D(-g, 0, 0.0), new Point3D(g, 0, 0.0)),
+              List.of(new Point3D(0, -g, 0.0), new Point3D(0, g, 0.0)),
               axisLineWidth,
               yAxisColor,
               lineType);
       root.getChildren().add(yAxis);
       if (labelAxes) {
-        labels.add(new Pair<>(new javafx.geometry.Point3D(-g, 0.0, 0.0), createLabel("-Y")));
-        labels.add(new Pair<>(new javafx.geometry.Point3D(g, 0.0, 0.0), createLabel("+Y")));
+        labels.add(new Pair<>(new javafx.geometry.Point3D(-0, -g, 0.0), createLabel("-Y")));
+        labels.add(new Pair<>(new javafx.geometry.Point3D(0, g, 0.0), createLabel("+Y")));
       }
     }
     if (showZAxis) {
       PolyLine3D zAxis =
           new PolyLine3D(
-              List.of(new Point3D(0.0, -g, 0.0), new Point3D(0.0, g, 0.0)),
+              List.of(new Point3D(0.0, 0, -g), new Point3D(0.0, 0.0, g)),
               axisLineWidth,
               zAxisColor,
               lineType);
       root.getChildren().add(zAxis);
       if (labelAxes) {
-        labels.add(new Pair<>(new javafx.geometry.Point3D(0.0, -g, 0.0), createLabel("-Z")));
-        labels.add(new Pair<>(new javafx.geometry.Point3D(0.0, g, 0.0), createLabel("+Z")));
+        labels.add(new Pair<>(new javafx.geometry.Point3D(0.0, 0, -g), createLabel("-Z")));
+        labels.add(new Pair<>(new javafx.geometry.Point3D(0.0, 0.0, g), createLabel("+Z")));
       }
     }
 

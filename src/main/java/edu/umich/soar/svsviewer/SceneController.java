@@ -57,23 +57,13 @@ public class SceneController {
 
   @FXML
   public void initialize() {
-    //    rootPane
-    //        .getStylesheets()
-    //        .add(Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm());
-    //    TODO: Either SVS and JavaFX have different ideas of axes, or the camera
-    // location is off. For now we just rotate the scene here to make FloorPlan1
-    // appear nice by default. Probably need to display axes first to figure out the
-    // correct answer.
-    rootGroup.getTransforms().add(new Rotate(90, Rotate.X_AXIS));
+    //    TODO: This just makes our THOR-Soar setup look nice immediately because we use Z as
+    // "up" in 3D space (towards the ceiling)
+    rootGroup.getTransforms().add(new Rotate(180, Rotate.X_AXIS));
 
     // Create and position camera
     PerspectiveCamera camera = new PerspectiveCamera(true);
-    camera
-        .getTransforms()
-        .addAll(
-            //            new Rotate(-20, Rotate.Y_AXIS),
-            //            new Rotate(-20, Rotate.X_AXIS),
-            new Translate(0, 0, -15));
+    camera.getTransforms().addAll(new Translate(0, 0, -15));
 
     // Add camera to scene
     viewerScene.setCamera(camera);
