@@ -8,6 +8,7 @@ import edu.umich.soar.svsviewer.server.Server;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -230,6 +231,16 @@ public class SceneController {
 
     initMenuBar(rootPane);
     initMessageStack(messageStack);
+    initPreferences();
+  }
+
+  private void initPreferences() {
+    Preferences prefs = Preferences.userNodeForPackage(SceneController.class);
+    messagesVisible.set(prefs.getBoolean("messagesVisible", true));
+    messagesVisible.addListener(
+        (obs, wasPreviouslyVisible, isNowVisible) -> {
+          prefs.putBoolean("messagesVisible", isNowVisible);
+        });
   }
 
   private void initMessageStack(VBox messageStack) {
