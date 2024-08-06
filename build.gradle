@@ -62,6 +62,8 @@ jlink {
 	launcher {
 		name = 'SVSViewer'
 	}
+	// addresses https://github.com/beryx/badass-jlink-plugin/issues/163
+	addExtraDependencies("javafx")
 }
 
 jlinkZip {
