@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -279,8 +280,13 @@ public class GeometryManager {
     }
   }
 
+  public void requestSceneRerender() {
+    Platform.runLater(this::updateLabelPositions);
+  }
+
   public void updateLabelPositions() {
-    //    System.out.println("Updating label positions...");
+    // TODO: would be nice to manage labels in a dedicated class
+    // System.out.println("Updating label positions...");
     // TODO: should be done only for the updated scene
     scenes
         .values()

@@ -2,7 +2,6 @@ package edu.umich.soar.svsviewer.command;
 
 import com.github.quickhull3d.Point3d;
 import com.github.quickhull3d.QuickHull3D;
-import edu.umich.soar.svsviewer.SVSViewerEvent;
 import edu.umich.soar.svsviewer.SceneController;
 import edu.umich.soar.svsviewer.scene.Geometry;
 import edu.umich.soar.svsviewer.scene.GeometryManager;
@@ -141,13 +140,10 @@ public record UpdateGeometryCommand(
       }
     }
     for (SVSScene scene : rerenderedScenes.values()) {
-      //      TODO: technically only need to update label for the geometries that were changed
-      Node sceneRoot = scene.root();
-      Platform.runLater(
-          () ->
-              Event.fireEvent(
-                  sceneRoot,
-                  new SVSViewerEvent(sceneRoot, SVSViewerEvent.SCENE_RERENDER_REQUESTED)));
+      // TODO: technically only need to update label for the scenes/geometries that were changed
+      // Node sceneRoot = scene.root();
+      // geoManager.requestSceneRerender(scene);
+      geoManager.requestSceneRerender();
     }
   }
 

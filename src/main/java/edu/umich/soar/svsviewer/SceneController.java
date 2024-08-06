@@ -89,7 +89,7 @@ public class SceneController {
     viewerScene.setCamera(camera);
 
     for (Transform t : List.of(cameraYaw, cameraPitch, cameraRoll, cameraTranslation)) {
-      t.setOnTransformChanged(value -> requestSceneRerender());
+      t.setOnTransformChanged(value -> geometryManager.requestSceneRerender());
     }
 
     // Handle keyboard events
@@ -176,8 +176,6 @@ public class SceneController {
 
     this.geometryManager =
         new GeometryManager(preferences, rootPane, shapeGroup, this::showMessage);
-    viewerScene.addEventFilter(
-        SVSViewerEvent.SCENE_RERENDER_REQUESTED, e -> geometryManager.updateLabelPositions());
 
     Consumer<String> inputProcessor =
         (String line) -> {
@@ -220,15 +218,7 @@ public class SceneController {
   }
 
   private void rerenderSceneOnChange(ObservableValue<?> observable) {
-    observable.addListener((obs, oldValue, newValue) -> requestSceneRerender());
-  }
-
-  private void requestSceneRerender() {
-    Platform.runLater(
-        () ->
-            Event.fireEvent(
-                viewerScene,
-                new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDER_REQUESTED)));
+    observable.addListener((obs, oldValue, newValue) -> geometryManager.requestSceneRerender());
   }
 
   private void initMessageStack(VBox messageStack) {
