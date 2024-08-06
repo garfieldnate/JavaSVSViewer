@@ -13,12 +13,13 @@ import java.util.function.Consumer;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -71,6 +72,8 @@ public class SceneController {
   private static final double CAMERA_TRANSLATION_SPEED = 0.1;
 
   private final VBox messageStack = new VBox();
+
+  private BooleanProperty messagesVisible = new SimpleBooleanProperty(true);
 
   @FXML
   public void initialize() {
@@ -225,13 +228,14 @@ public class SceneController {
     pointLight1.setTranslateZ(100);
     rootGroup.getChildren().add(pointLight1);
 
-    initMenu(rootPane);
+    initMenuBar(rootPane);
     initMessageStack(messageStack);
   }
 
   private void initMessageStack(VBox messageStack) {
     messageStack.setLayoutX(10);
     messageStack.setLayoutY(10);
+    messageStack.visibleProperty().bindBidirectional(messagesVisible);
     rootPane.getChildren().add(messageStack);
   }
 
@@ -318,9 +322,7 @@ public class SceneController {
     th.start();
   }
 
-  private void initMenu(Pane parentPane) {
-    //    Everything below just to: show a menu bar with Help->Tutorial that shows a dialog with
-    // usage instructions
+  private void initMenuBar(Pane parentPane) {
     MenuBar menuBar = new MenuBar();
     final String os = System.getProperty("os.name");
     if (os != null && os.startsWith("Mac")) {
@@ -332,6 +334,13 @@ public class SceneController {
       menuBar.prefWidthProperty().bind(rootPane.widthProperty());
       menuBar.setStyle("-fx-font-family: 'Helvetica'; -fx-font-size: 14px; -fx-font-weight: bold");
     }
+
+    CheckMenuItem showMessagesItem = new CheckMenuItem("Show Messages");
+    showMessagesItem.selectedProperty().bindBidirectional(messagesVisible);
+    Menu viewMenu = new Menu("View");
+    viewMenu.getItems().add(showMessagesItem);
+    menuBar.getMenus().add(viewMenu);
+
     Menu helpMenu = new Menu("Help");
     MenuItem tutorialItem = new MenuItem("Tutorial");
     helpMenu.getItems().add(tutorialItem);
@@ -365,6 +374,7 @@ public class SceneController {
               "-fx-font-family: 'Helvetica'; -fx-font-size: 14px; -fx-font-weight: bold");
           alert.showAndWait();
         });
+
     parentPane.getChildren().add(menuBar);
   }
 
