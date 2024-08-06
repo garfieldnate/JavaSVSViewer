@@ -233,7 +233,8 @@ public class SceneController {
 
   private void initMessageStack(VBox messageStack) {
     messageStack.setLayoutX(10);
-    messageStack.setLayoutY(10);
+    //    under the menu bar. TODO: should use logic to ensure that, rather than hardcoding a value
+    messageStack.setLayoutY(30);
     messageStack.visibleProperty().bindBidirectional(preferences.messagesVisibleProperty());
     rootPane.getChildren().add(messageStack);
   }

@@ -6,15 +6,12 @@ import edu.umich.soar.svsviewer.SVSViewerEvent;
 import edu.umich.soar.svsviewer.SceneController;
 import edu.umich.soar.svsviewer.scene.Geometry;
 import edu.umich.soar.svsviewer.scene.GeometryManager;
-
+import edu.umich.soar.svsviewer.scene.SVSScene;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import edu.umich.soar.svsviewer.scene.SVSScene;
 import javafx.event.Event;
 import javafx.geometry.Point3D;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
