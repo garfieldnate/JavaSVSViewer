@@ -153,7 +153,7 @@ public class SceneController {
               showMessage("L: Toggle labels");
             }
             case M -> {
-              geometryManager.nextDrawingMode();
+              preferences.nextDrawingMode();
               showMessage("M: Change drawing mode");
             }
             case S -> {

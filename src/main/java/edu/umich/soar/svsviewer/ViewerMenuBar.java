@@ -1,5 +1,6 @@
 package edu.umich.soar.svsviewer;
 
+import edu.umich.soar.svsviewer.util.DrawingMode;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -21,16 +22,17 @@ public class ViewerMenuBar {
       menuBar.setStyle("-fx-font-family: 'Helvetica'; -fx-font-size: 14px; -fx-font-weight: bold");
     }
 
+    Menu viewMenu = new Menu("View");
+    Menu drawMenu = new Menu("Draw");
+    Menu helpMenu = new Menu("Help");
+    menuBar.getMenus().addAll(helpMenu, viewMenu, drawMenu);
+
     CheckMenuItem showMessagesItem = new CheckMenuItem("Show Messages");
     showMessagesItem.selectedProperty().bindBidirectional(preferences.messagesVisibleProperty());
-    Menu viewMenu = new Menu("View");
     viewMenu.getItems().add(showMessagesItem);
-    menuBar.getMenus().add(viewMenu);
 
-    Menu helpMenu = new Menu("Help");
     MenuItem tutorialItem = new MenuItem("Tutorial");
     helpMenu.getItems().add(tutorialItem);
-    menuBar.getMenus().add(helpMenu);
 
     // Add event handler to the about item
     tutorialItem.setOnAction(
@@ -60,6 +62,57 @@ public class ViewerMenuBar {
               "-fx-font-family: 'Helvetica'; -fx-font-size: 14px; -fx-font-weight: bold");
           alert.showAndWait();
         });
+
+    ToggleGroup drawingModeToggle = new ToggleGroup();
+
+    RadioMenuItem fillAndLinesItem = new RadioMenuItem("Fill + Lines");
+    fillAndLinesItem.setUserData(DrawingMode.FILL_AND_LINE);
+    fillAndLinesItem.setToggleGroup(drawingModeToggle);
+
+    RadioMenuItem linesOnlyItem = new RadioMenuItem("Lines only");
+    linesOnlyItem.setUserData(DrawingMode.LINE);
+    linesOnlyItem.setToggleGroup(drawingModeToggle);
+
+    RadioMenuItem fillOnlyItem = new RadioMenuItem("Fill only");
+    fillOnlyItem.setUserData(DrawingMode.FILL);
+    fillOnlyItem.setToggleGroup(drawingModeToggle);
+
+    drawMenu.getItems().addAll(fillAndLinesItem, linesOnlyItem, fillOnlyItem);
+
+    // manual bi-directional binding
+    drawingModeToggle
+        .selectedToggleProperty()
+        .addListener(
+            (observable, oldValue, newValue) -> {
+              if (newValue != null) {
+                preferences.drawingModeProperty().set((DrawingMode) newValue.getUserData());
+                // Update your application state based on the selected ViewMode
+              }
+            });
+    preferences
+        .drawingModeProperty()
+        .addListener(
+            (obs, oldMode, newMode) -> {
+              if (newMode != null) {
+                drawingModeToggle
+                    .getToggles()
+                    .forEach(
+                        toggle -> {
+                          if (toggle.getUserData() == newMode) {
+                            drawingModeToggle.selectToggle(toggle);
+                          }
+                        });
+              }
+            });
+    // ensure initial menu value matches property value
+    drawingModeToggle
+        .getToggles()
+        .forEach(
+            toggle -> {
+              if (toggle.getUserData() == preferences.drawingModeProperty().get()) {
+                drawingModeToggle.selectToggle(toggle);
+              }
+            });
 
     parentPane.getChildren().add(menuBar);
   }

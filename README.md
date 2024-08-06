@@ -29,6 +29,7 @@ NEXT: prioritize features likely needed for preview release
 ## Bugs
 
 - labels show even when nodes are behind camera
+- on Mac: click on menu, don't select anything and click on pane. Registers as a mouse drag and rotates the scene!
 
 ### Design
 

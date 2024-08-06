@@ -31,7 +31,6 @@ public class GeometryManager {
   private final Axes3D axes;
   private final ViewerPreferences preferences;
   private final Pane labelsPane;
-  private DrawingMode drawingMode = DrawingMode.FILL_AND_LINE;
   private static final String GEO_LABELS_OFF_CLASS = "geo-labels-off";
 
   public GeometryManager(
@@ -65,6 +64,14 @@ public class GeometryManager {
         .addListener(
             (_observable, oldVal, newVal) -> {
               setLabelVisibility(newVal);
+            });
+
+    setDrawingMode(preferences.getDrawingMode());
+    preferences
+        .drawingModeProperty()
+        .addListener(
+            (observable, oldVal, newVal) -> {
+              setDrawingMode(newVal);
             });
   }
 
@@ -256,7 +263,7 @@ public class GeometryManager {
                 // TODO: unsatisfyingly places label at 0,0; should be invisible until the node is
                 // updated with a location
                 labelsPane.getChildren().add(geometry.getLabel());
-                geometry.setDrawingMode(drawingMode);
+                geometry.setDrawingMode(preferences.getDrawingMode());
 
                 showMessage.accept("Added geometry " + s.name() + "." + geometry.getName());
 
@@ -283,13 +290,8 @@ public class GeometryManager {
     axes.updateLabelLocations(labelsPane);
   }
 
-  public void nextDrawingMode() {
-    setDrawingMode(drawingMode.getNextMode());
-  }
-
-  void setDrawingMode(DrawingMode mode) {
-    this.drawingMode = mode;
-    // TODO: just set for one scene
+  private void setDrawingMode(DrawingMode mode) {
+    // TODO: just set for active scene
     scenes
         .values()
         .forEach(
