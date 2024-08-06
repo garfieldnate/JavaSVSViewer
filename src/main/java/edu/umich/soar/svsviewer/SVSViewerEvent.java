@@ -15,8 +15,8 @@ public class SVSViewerEvent extends Event {
   /** Common supertype for all server event types. */
   public static final EventType<SVSViewerEvent> ANY = new EventType<>(Event.ANY, "SVS_VIEWER");
 
-  public static final EventType<SVSViewerEvent> SCENE_RERENDERED =
-      new EventType<>(SVSViewerEvent.ANY, "SCENE_RERENDERED");
+  public static final EventType<SVSViewerEvent> SCENE_RERENDER_REQUESTED =
+      new EventType<>(SVSViewerEvent.ANY, "SCENE_RERENDER_REQUESTED");
 
   /**
    * @see Event#Event(Object, EventTarget, EventType)

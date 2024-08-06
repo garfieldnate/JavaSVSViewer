@@ -8,28 +8,23 @@ import edu.umich.soar.svsviewer.server.Server;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.prefs.Preferences;
 import java.util.List;
 import java.util.function.Consumer;
-import javafx.beans.binding.Bindings;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.DrawMode;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -80,6 +75,8 @@ public class SceneController {
     viewerScene.heightProperty().bind(rootPane.heightProperty());
     viewerScene.widthProperty().bind(rootPane.widthProperty());
 
+    rerenderSceneOnChange(viewerScene.boundsInParentProperty());
+
     //    TODO: This just makes our THOR-Soar setup look nice immediately because we use Z as
     // "up" in 3D space (towards the ceiling)
     rootGroup.getTransforms().add(new Rotate(180, Rotate.X_AXIS));
@@ -92,13 +89,7 @@ public class SceneController {
     viewerScene.setCamera(camera);
 
     for (Transform t : List.of(cameraYaw, cameraPitch, cameraRoll, cameraTranslation)) {
-      t.setOnTransformChanged(
-          value ->
-              Platform.runLater(
-                  () ->
-                      Event.fireEvent(
-                          viewerScene,
-                          new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
+      t.setOnTransformChanged(value -> requestSceneRerender());
     }
 
     // Handle keyboard events
@@ -180,20 +171,13 @@ public class SceneController {
     viewerScene.setFocusTraversable(true);
 
     initMouseControls(shapeGroup, viewerScene);
-    rootGroup
-        .boundsInParentProperty()
-        .addListener(
-            (observable, oldValue, newValue) ->
-                Platform.runLater(
-                    () ->
-                        Event.fireEvent(
-                            viewerScene,
-                            new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
+
+    rerenderSceneOnChange(rootGroup.boundsInParentProperty());
 
     this.geometryManager =
         new GeometryManager(preferences, rootPane, shapeGroup, this::showMessage);
     viewerScene.addEventFilter(
-        SVSViewerEvent.SCENE_RERENDERED, e -> geometryManager.updateLabelPositions());
+        SVSViewerEvent.SCENE_RERENDER_REQUESTED, e -> geometryManager.updateLabelPositions());
 
     Consumer<String> inputProcessor =
         (String line) -> {
@@ -233,6 +217,18 @@ public class SceneController {
 
     ViewerMenuBar.attachMenuBar(rootPane, preferences, this::saveScreenshot);
     initMessageStack(messageStack);
+  }
+
+  private void rerenderSceneOnChange(ObservableValue<?> observable) {
+    observable.addListener((obs, oldValue, newValue) -> requestSceneRerender());
+  }
+
+  private void requestSceneRerender() {
+    Platform.runLater(
+        () ->
+            Event.fireEvent(
+                viewerScene,
+                new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDER_REQUESTED)));
   }
 
   private void initMessageStack(VBox messageStack) {

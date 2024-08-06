@@ -10,6 +10,8 @@ import edu.umich.soar.svsviewer.scene.SVSScene;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.geometry.Point3D;
 import javafx.scene.Node;
@@ -139,8 +141,13 @@ public record UpdateGeometryCommand(
       }
     }
     for (SVSScene scene : rerenderedScenes.values()) {
+      //      TODO: technically only need to update label for the geometries that were changed
       Node sceneRoot = scene.root();
-      Event.fireEvent(sceneRoot, new SVSViewerEvent(sceneRoot, SVSViewerEvent.SCENE_RERENDERED));
+      Platform.runLater(
+          () ->
+              Event.fireEvent(
+                  sceneRoot,
+                  new SVSViewerEvent(sceneRoot, SVSViewerEvent.SCENE_RERENDER_REQUESTED)));
     }
   }
 
