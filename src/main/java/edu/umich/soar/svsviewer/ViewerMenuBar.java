@@ -77,7 +77,12 @@ public class ViewerMenuBar {
     fillOnlyItem.setUserData(DrawingMode.FILL);
     fillOnlyItem.setToggleGroup(drawingModeToggle);
 
-    drawMenu.getItems().addAll(fillAndLinesItem, linesOnlyItem, fillOnlyItem);
+    //    TODO: I wanted these on the main menu under a subheader, but adding a CustomMenuItem
+    // causes the entire menu bar not to show! Fails silently, so maybe we need to activate some
+    // JavaFX logs?
+    Menu drawingModeMenu = new Menu("Drawing Mode");
+    drawingModeMenu.getItems().addAll(fillAndLinesItem, linesOnlyItem, fillOnlyItem);
+    drawMenu.getItems().add(drawingModeMenu);
 
     // manual bi-directional binding
     drawingModeToggle

@@ -12,7 +12,7 @@ public class ViewerPreferences {
 
   private final BooleanProperty messagesVisible;
   private final BooleanProperty showLabels;
-
+  //  private
   private final ObjectProperty<DrawingMode> drawingMode;
 
   public ViewerPreferences() {
