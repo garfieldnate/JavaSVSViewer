@@ -63,6 +63,10 @@ public class ViewerMenuBar {
           alert.showAndWait();
         });
 
+    CheckMenuItem showLabelsMenuItem = new CheckMenuItem("Show Labels");
+    showLabelsMenuItem.selectedProperty().bindBidirectional(preferences.showLabelsProperty());
+    drawMenu.getItems().add(showLabelsMenuItem);
+
     ToggleGroup drawingModeToggle = new ToggleGroup();
 
     RadioMenuItem fillAndLinesItem = new RadioMenuItem("Fill + Lines");
