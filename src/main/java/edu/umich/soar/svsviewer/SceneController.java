@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.prefs.Preferences;
 import java.util.List;
 import java.util.function.Consumer;
+import javafx.beans.binding.Bindings;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -284,26 +285,54 @@ public class SceneController {
   private void initServer(Consumer<String> inputProcessor) {
     // While the server is not connected, show a simple status/instruction message
     // at the center of the screen
-    Text connectionStatusText =
+    Text welcomeInstructionsText =
         new Text("Waiting for connection at port 12122.\nConnect from Soar with:");
-    connectionStatusText.setFont(new Font("Helvetica", 30));
-    connectionStatusText.setTextAlignment(TextAlignment.CENTER);
-    connectionStatusText.setLineSpacing(6);
+    welcomeInstructionsText.setFont(new Font("Helvetica", 30));
+    welcomeInstructionsText.setTextAlignment(TextAlignment.CENTER);
+    welcomeInstructionsText.setLineSpacing(6);
     Text connectionInstructionText = new Text("svs connect_viewer 12122");
     connectionInstructionText.setFont(new Font("Courier New", 30));
     connectionInstructionText.setTextAlignment(TextAlignment.CENTER);
 
-    VBox vbox = new VBox(connectionStatusText, connectionInstructionText);
-    vbox.setAlignment(Pos.CENTER);
-
-    rootPane.getChildren().add(vbox);
+    VBox welcomeInstructionsBox = new VBox(welcomeInstructionsText, connectionInstructionText);
+    welcomeInstructionsBox.setAlignment(Pos.CENTER);
+    rootPane.getChildren().add(welcomeInstructionsBox);
     // Bind vbox's layoutX and layoutY properties to keep it centered
-    vbox.layoutXProperty().bind(rootPane.widthProperty().subtract(vbox.widthProperty()).divide(2));
-    vbox.layoutYProperty()
-        .bind(rootPane.heightProperty().subtract(vbox.heightProperty()).divide(2));
+    welcomeInstructionsBox
+        .layoutXProperty()
+        .bind(rootPane.widthProperty().subtract(welcomeInstructionsBox.widthProperty()).divide(2));
+    welcomeInstructionsBox
+        .layoutYProperty()
+        .bind(
+            rootPane.heightProperty().subtract(welcomeInstructionsBox.heightProperty()).divide(2));
+
+    Label disconnectedWarning =
+        new Label("No client connected. Connect from Soar with `svs connect_viewer 12122`.");
+    rootPane.getChildren().add(disconnectedWarning);
+    disconnectedWarning.getStyleClass().add("disconnectedWarningLabel");
+    // Place in lower-left corner
+    disconnectedWarning.setLayoutX(0);
+    disconnectedWarning
+        .layoutYProperty()
+        .bind(rootPane.heightProperty().subtract(disconnectedWarning.heightProperty()));
 
     server = new Server(12122, inputProcessor, this::showMessage);
-    server.onConnected(() -> vbox.setVisible(false));
+    server
+        .clientConnectedProperty()
+        .addListener(
+            (observer, oldVal, newVal) -> {
+              // hide after the first time the server connects
+              if (newVal) {
+                Platform.runLater(() -> welcomeInstructionsBox.setVisible(false));
+              }
+            });
+    server
+        .clientConnectedProperty()
+        .addListener(
+            (observer, oldVal, newVal) -> {
+              // show when not connected
+              Platform.runLater(() -> disconnectedWarning.setVisible(!newVal));
+            });
     Thread th = new Thread(server);
     th.setDaemon(true);
     th.start();

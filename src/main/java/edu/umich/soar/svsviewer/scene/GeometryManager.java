@@ -173,7 +173,6 @@ public class GeometryManager {
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
     }
-    // TODO: remove the labels for the deleted geometries
   }
 
   private void removeSceneNodes(SVSScene scene) {

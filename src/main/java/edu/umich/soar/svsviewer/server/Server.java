@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 
 public class Server extends Task<Void> {
@@ -17,12 +19,7 @@ public class Server extends Task<Void> {
   private final Consumer<String> inputProcessor;
   private final Consumer<String> showMessage;
 
-  @FunctionalInterface
-  public interface ConnectionListener {
-    void run();
-  }
-
-  private final List<ConnectionListener> onConnectedListeners = new ArrayList<>();
+  private final BooleanProperty clientConnected = new SimpleBooleanProperty(false);
 
   public Server(int portNumber, Consumer<String> inputProcessor, Consumer<String> showMessage) {
     this.portNumber = portNumber;
@@ -45,7 +42,7 @@ public class Server extends Task<Void> {
   protected Void call() {
     while (true) {
       System.out.println("Listening on port " + portNumber + " for a connection...");
-      showMessage.accept("Listening on port " + portNumber + " for a connection...");
+      //      showMessage.accept("Listening on port " + portNumber + " for a connection...");
       try (ServerSocket serverSocket = new ServerSocket(portNumber);
           Socket clientSocket = serverSocket.accept();
           // TODO: use BufferedWriter instead so that exceptions aren't swallowed
@@ -53,10 +50,8 @@ public class Server extends Task<Void> {
           BufferedReader in =
               new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); ) {
         System.out.println("Connection established");
+        clientConnected.set(true);
         showMessage.accept("Client connected");
-        for (ConnectionListener l : onConnectedListeners) {
-          l.run();
-        }
         String inputLine;
 
         while (!isCancelled() && (inputLine = in.readLine()) != null) {
@@ -71,11 +66,16 @@ public class Server extends Task<Void> {
         //        showMessage.accept("Client disconnected. Reconnect with svs connect_viewer
         // 12122.");
         System.out.println("Server connection ended");
+        clientConnected.set(false);
       }
     }
   }
 
-  public void onConnected(ConnectionListener listener) {
-    onConnectedListeners.add(listener);
+  public boolean isClientConnected() {
+    return clientConnected.get();
+  }
+
+  public BooleanProperty clientConnectedProperty() {
+    return clientConnected;
   }
 }

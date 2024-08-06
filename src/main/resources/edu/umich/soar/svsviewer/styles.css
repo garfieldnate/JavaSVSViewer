@@ -19,3 +19,11 @@
     -fx-font-weight: bold;
     -fx-font-size: 14;
 }
+
+.disconnectedWarningLabel {
+    -fx-font-family: 'Helvetica';
+    -fx-font-weight: bold;
+    -fx-font-size: 16;
+    -fx-background-color: lightgray;
+    -fx-padding: 10;
+}

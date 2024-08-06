@@ -16,7 +16,6 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
-- message in lower-left corner when agent disconnects
 - add instructions and some screenshots to readme
 
 ## Bugs
