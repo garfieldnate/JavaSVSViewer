@@ -148,6 +148,10 @@ public class SceneController {
                 showMessage("Cmd/Ctrl+→: Move camera right");
               }
             }
+            case E -> {
+              toggleBooleanProperty(preferences.messagesVisibleProperty());
+              showMessage("E: toggle show messages");
+            }
             case G -> {
               {
                 toggleBooleanProperty(preferences.showAxesProperty());
