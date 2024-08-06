@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
+
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -31,9 +33,12 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
+import javafx.util.Duration;
+
 import javax.imageio.ImageIO;
 
 public class SceneController {
+  public static final int MAX_MESSAGES = 20;
   @FXML private Pane rootPane;
   @FXML private Group rootGroup;
   @FXML private Group shapeGroup;
@@ -64,6 +69,8 @@ public class SceneController {
   private final Rotate cameraPitch = new Rotate(0, Rotate.X_AXIS);
   private final Rotate cameraRoll = new Rotate(0, Rotate.Z_AXIS);
   private static final double CAMERA_TRANSLATION_SPEED = 0.1;
+
+  private final VBox messageStack = new VBox();
 
   @FXML
   public void initialize() {
@@ -97,20 +104,25 @@ public class SceneController {
             case UP -> {
               if (isCmdOrCtrlDown) {
                 cameraPitch.setAngle(cameraPitch.getAngle() + 2);
+                showMessage("Cmd/Ctrl+↑: Lean camera forward");
               } else {
                 zoomCamera(CAMERA_TRANSLATION_SPEED);
+                showMessage("↑: Zoom in");
               }
             }
             case DOWN -> {
               if (isCmdOrCtrlDown) {
+                showMessage("Cmd/Ctrl+↑: Lean camera backward");
                 cameraPitch.setAngle(cameraPitch.getAngle() - 2);
               } else {
                 zoomCamera(-CAMERA_TRANSLATION_SPEED);
+                showMessage("↑: Zoom out");
               }
             }
             case LEFT -> {
               if (isCmdOrCtrlDown) {
                 cameraYaw.setAngle(cameraYaw.getAngle() - 2); // Rotate left
+                showMessage("Cmd/Ctrl+←: Turn camera left");
               }
               // TODO: Not supporting roll for now because a rolled camera has unintuitive yaw/pitch
               // controls. Need more complex calculations for yaw/pitch to support roll.
@@ -119,23 +131,45 @@ public class SceneController {
               //              }
               else {
                 cameraTranslation.setX(cameraTranslation.getX() - CAMERA_TRANSLATION_SPEED);
+                showMessage("Cmd/Ctrl+←: Move camera left");
               }
             }
             case RIGHT -> {
               if (isCmdOrCtrlDown) {
                 cameraYaw.setAngle(cameraYaw.getAngle() + 2); // Rotate right
+                showMessage("Cmd/Ctrl+→: Turn camera right");
               }
               //              else if (event.isShiftDown()) {
               //                cameraRoll.setAngle(cameraRoll.getAngle() - 2);
               //              }
               else {
                 cameraTranslation.setX(cameraTranslation.getX() + CAMERA_TRANSLATION_SPEED);
+                showMessage("Cmd/Ctrl+→: Move camera right");
               }
             }
-            case L -> toggleSceneLabels();
-            case M -> geometryManager.nextDrawingMode();
-            case S -> saveScreenshot();
-            case G -> geometryManager.toggleAxesVisibility();
+            case L -> {
+              toggleSceneLabels();
+              showMessage("L: Toggle labels");
+            }
+            case M -> {
+              geometryManager.nextDrawingMode();
+              showMessage("M: Change drawing mode");
+            }
+            case S -> {
+              String outfile = saveScreenshot();
+              showMessage("S: Save screenshot");
+              if (outfile != null) {
+                showMessage("Screenshot saved to " + outfile);
+              } else {
+                showMessage("Failed to save screenshot; see console output.");
+              }
+            }
+            case G -> {
+              {
+                geometryManager.toggleAxesVisibility();
+                showMessage("G: toggle axes");
+              }
+            }
           }
         });
     viewerScene.setFocusTraversable(true);
@@ -151,7 +185,7 @@ public class SceneController {
                             viewerScene,
                             new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
 
-    this.geometryManager = new GeometryManager(rootPane, shapeGroup);
+    this.geometryManager = new GeometryManager(rootPane, shapeGroup, this::showMessage);
     viewerScene.addEventFilter(
         SVSViewerEvent.SCENE_RERENDERED, e -> geometryManager.updateLabelPositions());
 
@@ -192,6 +226,32 @@ public class SceneController {
     rootGroup.getChildren().add(pointLight1);
 
     initMenu(rootPane);
+    initMessageStack(messageStack);
+  }
+
+  private void initMessageStack(VBox messageStack) {
+    messageStack.setLayoutX(10);
+    messageStack.setLayoutY(10);
+    rootPane.getChildren().add(messageStack);
+  }
+
+  // Call this method to add messages
+  public void showMessage(String text) {
+    addMessage(text, Duration.seconds(5)); // Show each message for 5 seconds
+  }
+
+  public void addMessage(String messageText, Duration duration) {
+    Text message = new Text(messageText);
+    message.getStyleClass().add("message"); // Define this class in your CSS
+
+    if (messageStack.getChildren().size() > MAX_MESSAGES) {
+      messageStack.getChildren().removeLast();
+    }
+    messageStack.getChildren().add(0, message); // Add to the top of the stack
+
+    PauseTransition delay = new PauseTransition(duration);
+    delay.setOnFinished(event -> messageStack.getChildren().remove(message));
+    delay.play();
   }
 
   private void toggleSceneLabels() {
@@ -226,6 +286,7 @@ public class SceneController {
         event -> {
           angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
           angleY.set(anchorAngleY - (anchorX - event.getSceneX()));
+          showMessage("Mouse drag: rotate scene");
         });
   }
 
@@ -250,7 +311,7 @@ public class SceneController {
     vbox.layoutYProperty()
         .bind(rootPane.heightProperty().subtract(vbox.heightProperty()).divide(2));
 
-    server = new Server(12122, inputProcessor);
+    server = new Server(12122, inputProcessor, this::showMessage);
     server.onConnected(() -> vbox.setVisible(false));
     Thread th = new Thread(server);
     th.setDaemon(true);
@@ -308,7 +369,7 @@ public class SceneController {
   }
 
   /** Save an image file showing the current viewer scene */
-  public void saveScreenshot() {
+  public String saveScreenshot() {
     File outputFile = getScreenshotFile();
     WritableImage image = rootPane.snapshot(new SnapshotParameters(), null);
     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
@@ -316,9 +377,11 @@ public class SceneController {
     try {
       ImageIO.write(bufferedImage, "png", outputFile);
       System.out.println("Saved screenshot to " + outputFile.getAbsolutePath());
+      return outputFile.getAbsolutePath();
     } catch (IOException e) {
       e.printStackTrace();
     }
+    return null;
   }
 
   /**

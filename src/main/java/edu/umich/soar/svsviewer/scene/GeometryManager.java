@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
+
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -24,11 +26,12 @@ public class GeometryManager {
   private final WildcardMap<SVSScene> scenes = new WildcardMap<>();
 
   private final Group geometryRoot;
+  private final Consumer<String> showMessage;
   private final Axes3D axes;
   private final Pane labelsPane;
   private DrawingMode drawingMode = DrawingMode.FILL_AND_LINE;
 
-  public GeometryManager(Pane rootPane, Group geometryRoot) {
+  public GeometryManager(Pane rootPane, Group geometryRoot, Consumer<String> showMessage) {
     this.labelsPane = rootPane;
     //    StackPane.setAlignment(labelsPane, Pos.TOP_LEFT);
     //    labelsPane.prefWidthProperty().bind(rootPane.widthProperty());
@@ -39,6 +42,7 @@ public class GeometryManager {
     //    rootPane.getChildren().add(labelsPane);
 
     this.geometryRoot = geometryRoot;
+    this.showMessage = showMessage;
     axes = new Axes3DBuilder().build();
     axes.setVisible(false);
     geometryRoot.getChildren().add(axes.getNode());
@@ -58,6 +62,7 @@ public class GeometryManager {
           if (sceneName.equals("S1")) {
             geometryRoot.getChildren().add(s.root());
           }
+          showMessage.accept("Created scene " + sceneName);
           return s;
         });
   }
@@ -77,7 +82,11 @@ public class GeometryManager {
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
     }
-    removedScenes.forEach(this::removeSceneNodes);
+    removedScenes.forEach(
+        scene -> {
+          removeSceneNodes(scene);
+          showMessage.accept("Removed scene " + scene.name());
+        });
   }
 
   public void deleteGeometry(NameMatcher sceneMatcher, NameMatcher geometryMatcher) {
@@ -108,6 +117,7 @@ public class GeometryManager {
                 Geometry removedGeometry = s.geometries().remove(geometryMatcher.namePattern());
                 if (removedGeometry != null) {
                   removeGeometryNodes(s, removedGeometry);
+                  showMessage.accept("Removed geometry " + s.name() + "." + removedGeometry);
                 }
               });
       case WILDCARD ->
@@ -115,7 +125,11 @@ public class GeometryManager {
               s -> {
                 Collection<Geometry> removedGeometries =
                     s.geometries().removeWithWildcards(geometryMatcher.namePattern());
-                removedGeometries.forEach(g -> removeGeometryNodes(s, g));
+                removedGeometries.forEach(
+                    g -> {
+                      showMessage.accept("Removed geometry " + s.name() + "." + g);
+                      removeGeometryNodes(s, g);
+                    });
               });
       default ->
           throw new UnsupportedOperationException("Unknown match type " + sceneMatcher.matchType());
@@ -219,6 +233,8 @@ public class GeometryManager {
                 // updated with a location
                 labelsPane.getChildren().add(geometry.getLabel());
                 geometry.setDrawingMode(drawingMode);
+
+                showMessage.accept("Added geometry " + s.name() + "." + geometry.getName());
 
                 return geometry;
               });

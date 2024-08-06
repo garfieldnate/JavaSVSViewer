@@ -13,3 +13,9 @@
 .geo-labels-off .geometry-label {
     -fx-opacity: 0;
 }
+
+.message {
+    -fx-font-family: 'Helvetica';
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+}
