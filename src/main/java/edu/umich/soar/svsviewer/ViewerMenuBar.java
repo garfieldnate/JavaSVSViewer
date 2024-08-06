@@ -44,14 +44,14 @@ public class ViewerMenuBar {
     showMessagesItem.selectedProperty().bindBidirectional(preferences.messagesVisibleProperty());
     viewMenu.getItems().add(showMessagesItem);
 
-    MenuItem tutorialItem = new MenuItem("Tutorial");
+    MenuItem tutorialItem = new MenuItem("Usage Instructions");
     helpMenu.getItems().add(tutorialItem);
 
     // Add event handler to the about item
     tutorialItem.setOnAction(
         e -> {
           Alert alert = new Alert(Alert.AlertType.INFORMATION);
-          alert.setTitle("Tutorial");
+          alert.setTitle("Usage Instructions");
           alert.setHeaderText(null);
 
           // Create a TextArea for selectable text

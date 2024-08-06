@@ -1,6 +1,6 @@
 # SVS Viewer
 
-A Java FX 3D-based rewrite of the SVS viewer.
+A JavaFX-based rewrite of the SVS viewer.
 
 ## Terminology
 
@@ -16,19 +16,11 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
-- add other viewing options to View menu and save in preferences
 - message in lower-left corner when agent disconnects
-- change all shortcuts to match svs_viewer? Or just make sure they are intuitive.
-- make shortcuts discoverable; perhaps a simple help menu that can display a dialog with instructions
-	- demo video/gif?
-	- long-term I'd want menu items for the various actions with their shortcuts listed. Isn't there a way to register
-	  those on Mac? Because cheatsheet can look them up somehow.
-- fix SLF4J warnings, and use logging instead of System.out/err
-- rename to SVSViewerFX (for standalone apps, noone needs to know it's Java!)
+- add instructions and some screenshots to readme
 
 ## Bugs
 
-- labels show even when nodes are behind camera
 - on Mac: click on menu, don't select anything and click on pane. Registers as a mouse drag and rotates the scene!
 
 ### Design
@@ -99,13 +91,13 @@ provider?), which is pulling from Server?
 
 [ ] good default camera position
 [ ] shortcuts for different angle views
-[ ] zoom in/out
-[ ] translate camera
-[ ] rotate camera
+[X] zoom in/out
+[X] translate camera
+[X] rotate camera
 [ ] rotate around point?
-[ ] labels on/off
-[ ] drawing mode line/solid
-[ ] screenshot shortcut
+[X] labels on/off
+[X] drawing mode line/solid
+[X] screenshot shortcut
 [ ] select which scene (S1, S2, etc.) to display
 [ ] select port to listen on, then create server (also allow command line specification)
 [ ] shift+mouse-drag horizontal to rotate around z-axis
@@ -121,16 +113,13 @@ provider?), which is pulling from Server?
 - [ ] change camera to FPV from object? (would probably suffice to show viewing direction of robot)
 
 [ ] 1,2,3,4,5,6 shortcuts to view from different faces
-[ ] maybe 1,2,3,4,5,6,7,8 to view from different corners
+[ ] maybe shift 1,2,3,4,5,6,7,8 to view from different corners
 [ ] arrow keys move camera to sides
-[ ] mouse rotation
+[X] mouse rotation
 [ ] regex to show/hide certain labels or objects
 
-- https://www.youtube.com/watch?v=yinIKzg7duc
-  [ ] shift mouse translates camera?
-  [ ] scroll zooms in and out?
-- https://www.youtube.com/watch?v=SiPfsZA_GeI
-  [ ] visual camera controls?
+[ ] visual camera controls?
+
 - slider for zoom https://www.youtube.com/watch?v=yWsNO9qiYgg
 - cube thing for rotation?
 - minimap for translation?
@@ -138,6 +127,7 @@ provider?), which is pulling from Server?
 other:
 
 - [ ] change package name. I am not associated with UMich.
+- [ ] rename to SVSViewerFX (for standalone apps, noone needs to know it's Java!)
 - [ ] send a PR to improve JavaFX javadocs
 	- TriangleMesh
 		- needs to explain texture coordinates
@@ -151,7 +141,7 @@ other:
 
 ### Settings
 
-[ ] save/load settings on user's machine somewhere
+[X] save/load settings on user's machine somewhere
 [ ] adjust sensitivity of controls (zoom)
 
 ## Format
