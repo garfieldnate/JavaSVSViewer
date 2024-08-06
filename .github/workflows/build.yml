@@ -37,9 +37,15 @@ jobs:
             -   name: Package
                 run: ./gradlew jpackage --no-daemon
 
+            # Required to preserve permissions; otherwise many of the packages will not work!
+            # See https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
+            -   name: Tar packages
+                run: tar -cvf build-artifacts-${{ matrix.os }}.tar build/jpackage/
+
             -   name: Archive build artifacts
-                if: success()  # Only runs if the previous steps were successful
+                # Only runs if the previous steps were successful
+                if: success()
                 uses: actions/upload-artifact@v2
                 with:
                     name: build-artifacts-${{ matrix.os }}
-                    path: build/jpackage/*
+                    path: build-artifacts-${{ matrix.os }}.tar
