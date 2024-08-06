@@ -16,6 +16,7 @@ Geometry in SVS (might not be visible, has color, text, etc.)
 
 NEXT: prioritize features likely needed for preview release
 
+- add other viewing options to View menu and save in preferences
 - message in lower-left corner when agent disconnects
 - change all shortcuts to match svs_viewer? Or just make sure they are intuitive.
 - make shortcuts discoverable; perhaps a simple help menu that can display a dialog with instructions

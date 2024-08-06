@@ -3,6 +3,7 @@ package edu.umich.soar.svsviewer.scene;
 import static edu.umich.soar.svsviewer.Axes3DBuilder.*;
 
 import edu.umich.soar.svsviewer.Axes3DBuilder;
+import edu.umich.soar.svsviewer.ViewerPreferences;
 import edu.umich.soar.svsviewer.command.NameMatcher;
 import edu.umich.soar.svsviewer.util.DrawingMode;
 import edu.umich.soar.svsviewer.util.Labels;
@@ -28,10 +29,17 @@ public class GeometryManager {
   private final Group geometryRoot;
   private final Consumer<String> showMessage;
   private final Axes3D axes;
+  private final ViewerPreferences preferences;
   private final Pane labelsPane;
   private DrawingMode drawingMode = DrawingMode.FILL_AND_LINE;
+  private static final String GEO_LABELS_OFF_CLASS = "geo-labels-off";
 
-  public GeometryManager(Pane rootPane, Group geometryRoot, Consumer<String> showMessage) {
+  public GeometryManager(
+      ViewerPreferences preferences,
+      Pane rootPane,
+      Group geometryRoot,
+      Consumer<String> showMessage) {
+    this.preferences = preferences;
     this.labelsPane = rootPane;
     //    StackPane.setAlignment(labelsPane, Pos.TOP_LEFT);
     //    labelsPane.prefWidthProperty().bind(rootPane.widthProperty());
@@ -50,6 +58,22 @@ public class GeometryManager {
       labelsPane.getChildren().add(label);
     }
     axes.updateLabelLocations(labelsPane);
+
+    setLabelVisibility(preferences.isShowLabels());
+    preferences
+        .showLabelsProperty()
+        .addListener(
+            (_observable, oldVal, newVal) -> {
+              setLabelVisibility(newVal);
+            });
+  }
+
+  private void setLabelVisibility(boolean visible) {
+    if (!visible) {
+      labelsPane.getStyleClass().add(GEO_LABELS_OFF_CLASS);
+    } else {
+      labelsPane.getStyleClass().remove(GEO_LABELS_OFF_CLASS);
+    }
   }
 
   public void createSceneIfNotExists(String sceneName) {

@@ -39,6 +39,8 @@ import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
 
+import static edu.umich.soar.svsviewer.util.PropertyUtils.toggleBooleanProperty;
+
 public class SceneController {
   public static final int MAX_MESSAGES = 20;
   @FXML private Pane rootPane;
@@ -60,11 +62,6 @@ public class SceneController {
 
   private static int screenshotCounter = 0;
 
-  private boolean geoLabelsHidden = false;
-  private static final String GEO_LABELS_OFF_CLASS = "geo-labels-off";
-
-  private DrawMode drawMode = DrawMode.FILL;
-
   private final Translate cameraTranslation = new Translate(0, 0, -15);
 
   private final Rotate cameraYaw = new Rotate(0, Rotate.Y_AXIS);
@@ -74,7 +71,7 @@ public class SceneController {
 
   private final VBox messageStack = new VBox();
 
-  private BooleanProperty messagesVisible = new SimpleBooleanProperty(true);
+  private final ViewerPreferences preferences = new ViewerPreferences();
 
   @FXML
   public void initialize() {
@@ -152,7 +149,7 @@ public class SceneController {
               }
             }
             case L -> {
-              toggleSceneLabels();
+              toggleBooleanProperty(preferences.showLabelsProperty());
               showMessage("L: Toggle labels");
             }
             case M -> {
@@ -189,7 +186,8 @@ public class SceneController {
                             viewerScene,
                             new SVSViewerEvent(viewerScene, SVSViewerEvent.SCENE_RERENDERED))));
 
-    this.geometryManager = new GeometryManager(rootPane, shapeGroup, this::showMessage);
+    this.geometryManager =
+        new GeometryManager(preferences, rootPane, shapeGroup, this::showMessage);
     viewerScene.addEventFilter(
         SVSViewerEvent.SCENE_RERENDERED, e -> geometryManager.updateLabelPositions());
 
@@ -229,24 +227,14 @@ public class SceneController {
     pointLight1.setTranslateZ(100);
     rootGroup.getChildren().add(pointLight1);
 
-    initMenuBar(rootPane);
+    ViewerMenuBar.attachMenuBar(rootPane, preferences);
     initMessageStack(messageStack);
-    initPreferences();
-  }
-
-  private void initPreferences() {
-    Preferences prefs = Preferences.userNodeForPackage(SceneController.class);
-    messagesVisible.set(prefs.getBoolean("messagesVisible", true));
-    messagesVisible.addListener(
-        (obs, wasPreviouslyVisible, isNowVisible) -> {
-          prefs.putBoolean("messagesVisible", isNowVisible);
-        });
   }
 
   private void initMessageStack(VBox messageStack) {
     messageStack.setLayoutX(10);
     messageStack.setLayoutY(10);
-    messageStack.visibleProperty().bindBidirectional(messagesVisible);
+    messageStack.visibleProperty().bindBidirectional(preferences.messagesVisibleProperty());
     rootPane.getChildren().add(messageStack);
   }
 
@@ -267,17 +255,6 @@ public class SceneController {
     PauseTransition delay = new PauseTransition(duration);
     delay.setOnFinished(event -> messageStack.getChildren().remove(message));
     delay.play();
-  }
-
-  private void toggleSceneLabels() {
-    geoLabelsHidden = !geoLabelsHidden;
-    if (geoLabelsHidden) {
-      //                System.out.println("Hiding labels...");
-      rootPane.getStyleClass().add(GEO_LABELS_OFF_CLASS);
-    } else {
-      //                System.out.println("Showing labels");
-      rootPane.getStyleClass().remove(GEO_LABELS_OFF_CLASS);
-    }
   }
 
   private void initMouseControls(Group group, SubScene scene) {
@@ -331,62 +308,6 @@ public class SceneController {
     Thread th = new Thread(server);
     th.setDaemon(true);
     th.start();
-  }
-
-  private void initMenuBar(Pane parentPane) {
-    MenuBar menuBar = new MenuBar();
-    final String os = System.getProperty("os.name");
-    if (os != null && os.startsWith("Mac")) {
-      // Mac applications use the system menu bar; no placement on parent pane required
-      menuBar.useSystemMenuBarProperty().set(true);
-    } else {
-      // For other OS's, it will show up in the top of the parent pane. Span the width of
-      // the window so it looks like a proper menu bar.
-      menuBar.prefWidthProperty().bind(rootPane.widthProperty());
-      menuBar.setStyle("-fx-font-family: 'Helvetica'; -fx-font-size: 14px; -fx-font-weight: bold");
-    }
-
-    CheckMenuItem showMessagesItem = new CheckMenuItem("Show Messages");
-    showMessagesItem.selectedProperty().bindBidirectional(messagesVisible);
-    Menu viewMenu = new Menu("View");
-    viewMenu.getItems().add(showMessagesItem);
-    menuBar.getMenus().add(viewMenu);
-
-    Menu helpMenu = new Menu("Help");
-    MenuItem tutorialItem = new MenuItem("Tutorial");
-    helpMenu.getItems().add(tutorialItem);
-    menuBar.getMenus().add(helpMenu);
-
-    // Add event handler to the about item
-    tutorialItem.setOnAction(
-        e -> {
-          Alert alert = new Alert(AlertType.INFORMATION);
-          alert.setTitle("Tutorial");
-          alert.setHeaderText(null);
-
-          // Create a TextArea for selectable text
-          TextArea textArea = new TextArea(Help.DOCS);
-          textArea.setEditable(false); // Make it non-editable
-          textArea.setWrapText(true); // Enable text wrapping
-          textArea.setMaxWidth(Double.MAX_VALUE); // Use max width for better layout
-          textArea.setMaxHeight(Double.MAX_VALUE); // Use max height for better layout
-          GridPane.setVgrow(textArea, Priority.ALWAYS);
-          GridPane.setHgrow(textArea, Priority.ALWAYS);
-
-          GridPane content = new GridPane();
-          content.setMaxWidth(Double.MAX_VALUE);
-          content.add(textArea, 0, 0);
-
-          // Set the dialog pane content to the layout containing the TextArea
-          DialogPane dialogPane = alert.getDialogPane();
-          dialogPane.setContent(content);
-
-          dialogPane.setStyle(
-              "-fx-font-family: 'Helvetica'; -fx-font-size: 14px; -fx-font-weight: bold");
-          alert.showAndWait();
-        });
-
-    parentPane.getChildren().add(menuBar);
   }
 
   /** Save an image file showing the current viewer scene */
