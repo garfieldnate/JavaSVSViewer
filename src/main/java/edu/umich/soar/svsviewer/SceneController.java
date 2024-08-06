@@ -163,13 +163,8 @@ public class SceneController {
               showMessage("M: Change drawing mode");
             }
             case S -> {
-              String outfile = saveScreenshot();
+              saveScreenshot();
               showMessage("S: Save screenshot");
-              if (outfile != null) {
-                showMessage("Screenshot saved to " + outfile);
-              } else {
-                showMessage("Failed to save screenshot; see console output.");
-              }
             }
           }
         });
@@ -227,7 +222,7 @@ public class SceneController {
     pointLight1.setTranslateZ(100);
     rootGroup.getChildren().add(pointLight1);
 
-    ViewerMenuBar.attachMenuBar(rootPane, preferences);
+    ViewerMenuBar.attachMenuBar(rootPane, preferences, this::saveScreenshot);
     initMessageStack(messageStack);
   }
 
@@ -311,7 +306,7 @@ public class SceneController {
   }
 
   /** Save an image file showing the current viewer scene */
-  public String saveScreenshot() {
+  public void saveScreenshot() {
     File outputFile = getScreenshotFile();
     WritableImage image = rootPane.snapshot(new SnapshotParameters(), null);
     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
@@ -319,11 +314,11 @@ public class SceneController {
     try {
       ImageIO.write(bufferedImage, "png", outputFile);
       System.out.println("Saved screenshot to " + outputFile.getAbsolutePath());
-      return outputFile.getAbsolutePath();
+      showMessage("Screenshot saved to " + outputFile.getAbsolutePath());
     } catch (IOException e) {
       e.printStackTrace();
+      showMessage("Failed to save screenshot; see console output.");
     }
-    return null;
   }
 
   /**

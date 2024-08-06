@@ -6,9 +6,17 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 
+import java.util.function.Function;
+
 public class ViewerMenuBar {
 
-  public static void attachMenuBar(Pane parentPane, ViewerPreferences preferences) {
+  @FunctionalInterface
+  public interface Procedure {
+    void run();
+  }
+
+  public static void attachMenuBar(
+      Pane parentPane, ViewerPreferences preferences, Procedure saveScreenshot) {
     MenuBar menuBar = new MenuBar();
     final String os = System.getProperty("os.name");
     final boolean isMac = os != null && os.startsWith("Mac");
@@ -22,10 +30,15 @@ public class ViewerMenuBar {
       menuBar.setStyle("-fx-font-family: 'Helvetica'; -fx-font-size: 14px; -fx-font-weight: bold");
     }
 
+    Menu fileMenu = new Menu("File");
     Menu viewMenu = new Menu("View");
     Menu sceneMenu = new Menu("Scene");
     Menu helpMenu = new Menu("Help");
-    menuBar.getMenus().addAll(helpMenu, viewMenu, sceneMenu);
+    menuBar.getMenus().addAll(fileMenu, viewMenu, sceneMenu, helpMenu);
+
+    MenuItem saveScreenshotMenuItem = new MenuItem("Save Screenshot");
+    saveScreenshotMenuItem.setOnAction((event) -> saveScreenshot.run());
+    fileMenu.getItems().add(saveScreenshotMenuItem);
 
     CheckMenuItem showMessagesItem = new CheckMenuItem("Show Messages");
     showMessagesItem.selectedProperty().bindBidirectional(preferences.messagesVisibleProperty());
