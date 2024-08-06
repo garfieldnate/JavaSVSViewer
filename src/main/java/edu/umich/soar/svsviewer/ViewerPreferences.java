@@ -12,11 +12,14 @@ public class ViewerPreferences {
 
   private final BooleanProperty messagesVisible;
   private final BooleanProperty showLabels;
+
+  private final BooleanProperty showAxes;
   //  private
   private final ObjectProperty<DrawingMode> drawingMode;
 
   public ViewerPreferences() {
     Preferences prefs = Preferences.userNodeForPackage(SceneController.class);
+
     messagesVisible = new SimpleBooleanProperty(prefs.getBoolean("messagesVisible", true));
     messagesVisible.addListener(
         (obs, wasPreviouslyVisible, isNowVisible) -> {
@@ -28,6 +31,12 @@ public class ViewerPreferences {
         (obs, wasPreviouslyVisible, isNowVisible) -> {
           System.out.println("Pref set: " + isNowVisible);
           prefs.putBoolean("showLabels", isNowVisible);
+        });
+
+    showAxes = new SimpleBooleanProperty(prefs.getBoolean("showAxes", true));
+    showAxes.addListener(
+        (obs, wasPreviouslyVisible, isNowVisible) -> {
+          prefs.putBoolean("showAxes", isNowVisible);
         });
 
     DrawingMode loadedDrawingMode;
@@ -70,5 +79,13 @@ public class ViewerPreferences {
 
   public void nextDrawingMode() {
     drawingModeProperty().set(getDrawingMode().getNextMode());
+  }
+
+  public boolean isShowAxes() {
+    return showAxes.get();
+  }
+
+  public BooleanProperty showAxesProperty() {
+    return showAxes;
   }
 }

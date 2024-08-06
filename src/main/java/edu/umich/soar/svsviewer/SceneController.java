@@ -148,6 +148,12 @@ public class SceneController {
                 showMessage("Cmd/Ctrl+→: Move camera right");
               }
             }
+            case G -> {
+              {
+                toggleBooleanProperty(preferences.showAxesProperty());
+                showMessage("G: toggle axes");
+              }
+            }
             case L -> {
               toggleBooleanProperty(preferences.showLabelsProperty());
               showMessage("L: Toggle labels");
@@ -163,12 +169,6 @@ public class SceneController {
                 showMessage("Screenshot saved to " + outfile);
               } else {
                 showMessage("Failed to save screenshot; see console output.");
-              }
-            }
-            case G -> {
-              {
-                geometryManager.toggleAxesVisibility();
-                showMessage("G: toggle axes");
               }
             }
           }

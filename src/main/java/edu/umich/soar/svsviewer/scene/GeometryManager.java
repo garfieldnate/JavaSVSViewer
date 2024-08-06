@@ -58,6 +58,14 @@ public class GeometryManager {
     }
     axes.updateLabelLocations(labelsPane);
 
+    axes.setVisible(preferences.isShowAxes());
+    preferences
+        .showAxesProperty()
+        .addListener(
+            (_observable, oldVal, newVal) -> {
+              axes.setVisible(newVal);
+            });
+
     setLabelVisibility(preferences.isShowLabels());
     preferences
         .showLabelsProperty()
@@ -297,9 +305,5 @@ public class GeometryManager {
         .forEach(
             scene ->
                 scene.geometries().values().forEach(geometry -> geometry.setDrawingMode(mode)));
-  }
-
-  public void toggleAxesVisibility() {
-    axes.setVisible(!axes.isVisible());
   }
 }

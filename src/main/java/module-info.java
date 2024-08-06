@@ -13,6 +13,7 @@ module edu.umich.soar.svsviewer {
 
   exports edu.umich.soar.svsviewer;
   exports edu.umich.soar.svsviewer.command;
+  exports edu.umich.soar.svsviewer.util;
 
   opens edu.umich.soar.svsviewer.command to
       javafx.fxml;

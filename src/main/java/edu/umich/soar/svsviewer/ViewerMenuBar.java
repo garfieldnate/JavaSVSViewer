@@ -23,9 +23,9 @@ public class ViewerMenuBar {
     }
 
     Menu viewMenu = new Menu("View");
-    Menu drawMenu = new Menu("Draw");
+    Menu sceneMenu = new Menu("Scene");
     Menu helpMenu = new Menu("Help");
-    menuBar.getMenus().addAll(helpMenu, viewMenu, drawMenu);
+    menuBar.getMenus().addAll(helpMenu, viewMenu, sceneMenu);
 
     CheckMenuItem showMessagesItem = new CheckMenuItem("Show Messages");
     showMessagesItem.selectedProperty().bindBidirectional(preferences.messagesVisibleProperty());
@@ -63,9 +63,13 @@ public class ViewerMenuBar {
           alert.showAndWait();
         });
 
+    CheckMenuItem showAxesMenuItem = new CheckMenuItem("Show Axes");
+    showAxesMenuItem.selectedProperty().bindBidirectional(preferences.showAxesProperty());
+    sceneMenu.getItems().add(showAxesMenuItem);
+
     CheckMenuItem showLabelsMenuItem = new CheckMenuItem("Show Labels");
     showLabelsMenuItem.selectedProperty().bindBidirectional(preferences.showLabelsProperty());
-    drawMenu.getItems().add(showLabelsMenuItem);
+    sceneMenu.getItems().add(showLabelsMenuItem);
 
     ToggleGroup drawingModeToggle = new ToggleGroup();
 
@@ -86,7 +90,7 @@ public class ViewerMenuBar {
     // JavaFX logs?
     Menu drawingModeMenu = new Menu("Drawing Mode");
     drawingModeMenu.getItems().addAll(fillAndLinesItem, linesOnlyItem, fillOnlyItem);
-    drawMenu.getItems().add(drawingModeMenu);
+    sceneMenu.getItems().add(drawingModeMenu);
 
     // manual bi-directional binding
     drawingModeToggle
