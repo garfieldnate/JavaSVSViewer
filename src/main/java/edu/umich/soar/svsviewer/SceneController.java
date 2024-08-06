@@ -118,11 +118,11 @@ public class SceneController {
             }
             case DOWN -> {
               if (isCmdOrCtrlDown) {
-                showMessage("Cmd/Ctrl+↑: Lean camera backward");
+                showMessage("Cmd/Ctrl+↓: Lean camera backward");
                 cameraPitch.setAngle(cameraPitch.getAngle() - 2);
               } else {
                 zoomCamera(-CAMERA_TRANSLATION_SPEED);
-                showMessage("↑: Zoom out");
+                showMessage("↓: Zoom out");
               }
             }
             case LEFT -> {
