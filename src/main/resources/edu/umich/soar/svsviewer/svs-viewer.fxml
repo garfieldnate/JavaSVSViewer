@@ -13,8 +13,6 @@
         <URL value="@styles.css"/>
     </stylesheets>
     <SubScene fx:id="viewerScene"
-              width="1400"
-              height="800"
               fill="ALICEBLUE"
               depthBuffer="true">
         <root>

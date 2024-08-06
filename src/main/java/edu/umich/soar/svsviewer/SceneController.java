@@ -76,6 +76,10 @@ public class SceneController {
 
   @FXML
   public void initialize() {
+    // TODO: would prefer to bind in the FXML file, but I couldn't get that to work.
+    viewerScene.heightProperty().bind(rootPane.heightProperty());
+    viewerScene.widthProperty().bind(rootPane.widthProperty());
+
     //    TODO: This just makes our THOR-Soar setup look nice immediately because we use Z as
     // "up" in 3D space (towards the ceiling)
     rootGroup.getTransforms().add(new Rotate(180, Rotate.X_AXIS));
