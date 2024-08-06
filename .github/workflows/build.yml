@@ -40,7 +40,7 @@ jobs:
             # Required to preserve permissions; otherwise many of the packages will not work!
             # See https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
             -   name: Tar packages
-                run: tar -cvf build-artifacts-${{ matrix.os }}.tar build/jpackage/
+                run: tar -cvf build-artifacts-${{ matrix.os }}.tar build/jpackage
 
             -   name: Archive build artifacts
                 # Only runs if the previous steps were successful
