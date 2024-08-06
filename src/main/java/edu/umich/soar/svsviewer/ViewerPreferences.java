@@ -29,7 +29,6 @@ public class ViewerPreferences {
     showLabels = new SimpleBooleanProperty(prefs.getBoolean("showLabels", true));
     showLabels.addListener(
         (obs, wasPreviouslyVisible, isNowVisible) -> {
-          System.out.println("Pref set: " + isNowVisible);
           prefs.putBoolean("showLabels", isNowVisible);
         });
 
