@@ -64,6 +64,10 @@ jlink {
 	}
 	// addresses https://github.com/beryx/badass-jlink-plugin/issues/163
 	addExtraDependencies("javafx")
+	mergedModule {
+		// required by quickhull3d, which isn't a module, so we have to add it explicitly here
+		requires 'org.slf4j'
+	}
 }
 
 jlinkZip {
