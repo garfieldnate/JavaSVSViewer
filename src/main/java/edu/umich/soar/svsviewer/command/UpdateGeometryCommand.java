@@ -60,7 +60,6 @@ public record UpdateGeometryCommand(
         geometry.clear();
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
-        meshView.setCullFace(CullFace.NONE);
         //        TODO: put in constants
         PhongMaterial shinyMaterial = new PhongMaterial(Color.ALICEBLUE);
         shinyMaterial.setSpecularColor(Color.WHITE); // Set the color of the specular
