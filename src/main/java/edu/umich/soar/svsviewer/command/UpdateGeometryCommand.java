@@ -10,14 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javafx.application.Platform;
-import javafx.event.Event;
 import javafx.geometry.Point3D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Scale;
+import javafx.scene.transform.Translate;
 
 public record UpdateGeometryCommand(
     NameMatcher sceneMatcher,
@@ -43,30 +43,21 @@ public record UpdateGeometryCommand(
     // part of this list.
     for (Geometry geometry : geoManager.findGeometries(sceneMatcher, geometryMatcher)) {
       if (position != null) {
-        geometry.modifyGroups(
-            node -> {
-              node.setTranslateX(position.get(0));
-              node.setTranslateY(position.get(1));
-              node.setTranslateZ(position.get(2));
-            });
-        rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
-      }
-      if (rotation != null) {
-        rotateWithQuaternion(rotation, geometry);
+        geometry.setTranslation(new Translate(position.get(0), position.get(1), position.get(2)));
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (scale != null) {
-        geometry.modifyGroups(
-            node -> {
-              node.setScaleX(scale.get(0));
-              node.setScaleY(scale.get(1));
-              node.setScaleZ(scale.get(2));
-            });
+        geometry.setScale(new Scale(scale.get(0), scale.get(1), scale.get(2)));
+        rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
+      }
+      if (rotation != null) {
+        Rotate r = quaternionToRotation(rotation);
+        geometry.setRotation(r);
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
 
       if (vertices != null) {
-        geometry.clearChildren();
+        geometry.clear();
         TriangleMesh mesh = verticesToTriangleMesh(vertices);
         MeshView meshView = new MeshView(mesh);
         meshView.setCullFace(CullFace.NONE);
@@ -88,7 +79,7 @@ public record UpdateGeometryCommand(
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (radius != null) {
-        geometry.clearChildren();
+        geometry.clear();
         Sphere s = new Sphere(radius);
         geometry.getGroup().getChildren().add(s);
 
@@ -99,7 +90,7 @@ public record UpdateGeometryCommand(
         rerenderedScenes.put(geometry.getParent().name(), geometry.getParent());
       }
       if (text != null) {
-        geometry.clearChildren();
+        geometry.clear();
         // svs_viewer calls draw_text(g->text, 0, 0), which would draw at the origin no matter where
         // the geometry is;
         // that seems wrong. I think maybe it was never implemented properly because it's not
