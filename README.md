@@ -21,29 +21,36 @@ here: https://soar.eecs.umich.edu/soar_manual/08_SpatialVisualSystem/.
 
 Screenshots are available on the [wiki](https://github.com/garfieldnate/JavaSVSViewer/wiki).
 
-## Installing
+## Pre-built Binaries
 
-* Standalone applications built via jpackage in CI
-* For Mac, I notice that the .pkg works but the .dmg does not
+See the [latest release](https://github.com/garfieldnate/JavaSVSViewer/releases/latest) for a pre-built binary for your
+platform.
 
-## Format
+* Standalone applications are built via jlink/jpackage in CI
+* Open issues on the packaging: https://github.com/garfieldnate/JavaSVSViewer/issues/2
+
+## Development
+
+### Executing from Source
+
+    ./gradlew run
+
+### Format
 
 We use [google-java-format](https://github.com/google/google-java-format) to format the source files.
 
 For IntelliJ, install and configure the plugin, and enable "Reformat code" under the "Actions on Save" setting.
 
-## Editing
+### Editors
 
-You may want SceneBuilder in IntelliJ to edit the fxml file:
-https://www.jetbrains.com/help/idea/opening-fxml-files-in-javafx-scene-builder.html#download-scene-builder-from-ide
+The main class to run is `SvsViewerApplication`.
 
-## Building/Running
+Running in IntelliJ has been broken since adding a non-module dependency. The error is:
 
-### IntelliJ
+    Error occurred during initialization of boot layer
+    java.lang.module.FindException: Module quickhull3d not found, required by edu.umich.soar.svsviewer
 
-Load in IntelliJ and run SvsViewerApplication.java.
-
-### Standalone JAR
+### Building a Standalone JAR
 
 Run the Jlink build, then cd build/jlinkbase/jlinkjars and do:
 
