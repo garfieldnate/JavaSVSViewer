@@ -71,6 +71,9 @@ public class SceneController {
 
   @FXML
   public void initialize() {
+    this.geometryManager =
+        new GeometryManager(preferences, rootPane, shapeGroup, this::showMessage);
+
     // TODO: would prefer to bind in the FXML file, but I couldn't get that to work.
     viewerScene.heightProperty().bind(rootPane.heightProperty());
     viewerScene.widthProperty().bind(rootPane.widthProperty());
@@ -173,9 +176,6 @@ public class SceneController {
     initMouseControls(shapeGroup, viewerScene);
 
     rerenderSceneOnChange(rootGroup.boundsInParentProperty());
-
-    this.geometryManager =
-        new GeometryManager(preferences, rootPane, shapeGroup, this::showMessage);
 
     Consumer<String> inputProcessor =
         (String line) -> {
